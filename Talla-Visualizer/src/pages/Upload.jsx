@@ -12,7 +12,7 @@ function UploadPage() {
   return (
     <>
       <TallaNavbar></TallaNavbar>
-      <div className="flex  items-center justify-center h-screen w-full bg-dirty-white z-0 overflow-hidden object-cover">
+      <div className="flex  items-center justify-center h-screen w-full bg-dirty-white z-0 ">
         {/* <img src={formShadow} alt="form" className="z-0 absolute scale-50 -top-[300] -left-[200] " />  */}
         {/* <img src={formPattern} alt="form" className="z-0 absolute -bottom-20 -right-14 w-5/12" /> */}
         <div className=" w-full flex items-center justify-center ">

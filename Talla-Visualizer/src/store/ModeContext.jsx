@@ -5,7 +5,7 @@ const ModeContext = createContext();
 
 // Crea il provider
 export const ModeProvider = ({ children }) => {
-    const [isOnline, setIsOnline] = useState(true);
+    const [isOnline, setIsOnline] = useState(false);
 
     const toggleMode = () => {
         setIsOnline(prevMode => !prevMode);

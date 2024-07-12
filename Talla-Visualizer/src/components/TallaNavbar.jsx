@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { XMarkIcon, Bars3Icon } from "@heroicons/react/24/solid";
-
+import { useMode } from "../store/ModeContext.jsx";
 import ModeSwitch from "./ModeSwitch.jsx";
 import {
   Dropdown,
@@ -12,8 +12,9 @@ import {
 } from "@nextui-org/react";
 
 function TallaNavbar() {
+  const { isOnline } = useMode();
   return (
-    <nav className="bg-secondary  w-full p-4 z-50 ">
+    <nav className="bg-secondary  w-full p-4 z-50 fixed top-0">
       <div className="mx-auto flex justify-between items-center md:mx-7">
         <Link
           to="/"
@@ -48,14 +49,15 @@ function TallaNavbar() {
                   Dashboard
                 </Link>
               </DropdownItem>
-              <DropdownItem key="upload" className="flex justify-center">
+              {isOnline &&(
+                <DropdownItem key="upload" className="flex justify-center">
                 <Link
                   to="/upload"
                   className="block text-primary px-3 py-2 rounded hover:bg-white/20"
                 >
                   Upload
                 </Link>
-              </DropdownItem>
+              </DropdownItem>)}
               <DropdownItem
                 key="mode"
                 className="flex items-center justify-center"
@@ -87,14 +89,14 @@ function TallaNavbar() {
               Dashboard
             </Link>
           </li>
-          <li>
+          {isOnline &&<li>
             <Link
               to="/upload"
               className="block text-primary px-3 py-2 rounded hover:bg-white/20"
             >
               Upload
             </Link>
-          </li>
+          </li>}
           <li className="flex items-center justify-center">
             <ModeSwitch />
           </li>

@@ -3,7 +3,7 @@ import InputFile from "./InputFile.jsx";
 import FormData from "form-data";
 import Switch from "./Switch.jsx";
 import React from "react";
-import { FileContext } from "../store/FileContext.jsx";
+import { FileContext } from "../store/uploadedFileContext.jsx";
 import { useState, useContext } from "react";
 import TreeCamapaignSelect from "./TreeCampaignSelect.jsx";
 

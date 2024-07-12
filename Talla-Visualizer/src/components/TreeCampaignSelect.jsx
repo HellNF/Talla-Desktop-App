@@ -2,18 +2,29 @@
 import React, { useState, useEffect } from "react";
 import { TreeSelect } from 'primereact/treeselect';
 import { BaseURL } from '../costants.js';
+import {useMode} from '../store/ModeContext.jsx';
+
 
 export default function TreeCamapaignSelect({ handleTreeSelectChange, deep=false}) {
     const [data, setData] = useState([]);
-    
+    const {isOnline} = useMode();
     
     const [selectedNodeKey, setSelectedNodeKey] = useState(null);
 
     useEffect(() => {
-        getCampaignGroups();
-    }, []);
+        isOnline && getCampaignGroups();
+        !isOnline && getFolderStructure();
+    }, [isOnline]);
+
     
-    
+    function getFolderStructure(){
+        
+        window.electronAPI.invoke(  'tree:getFilesAndFolders').then((data) => {
+            setData(dataFormatter(data));
+        });
+        
+    }
+
     function dataFormatter(data) {
         const formattedData = [];
         data.forEach((group, i) => {

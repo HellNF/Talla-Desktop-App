@@ -1,5 +1,15 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow,session, ipcMain  } = require('electron');
 const path = require('node:path');
+const fs = require('node:fs');
+const os=require('node:os');
+
+const installExtension = require('electron-devtools-installer').default;
+const { REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
+const { glob } = require('glob');
+
+// Definisci il percorso della directory di lavoro
+const documentsDir = path.join(os.homedir(), 'Documents');
+const workspaceDir = path.join(documentsDir, 'TallaWorkspace');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -12,7 +22,9 @@ const createWindow = () => {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      preload: path.join(app.getAppPath(),'src', 'preload.js'),
+      nodeIntegration: false,
+      
     },
     autoHideMenuBar: false,
   });
@@ -36,10 +48,25 @@ const createWindow = () => {
   //mainWindow.webContents.openDevTools();
 };
 
+// In production, load the react devtools extension
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+app.whenReady().then( () => {
+
+  installExtension(REACT_DEVELOPER_TOOLS)
+  .then((name) => console.log(`Added Extension:  ${name}`))
+  .catch((err) => console.log('An error occurred: ', err));
+
+  // Crea la directory di lavoro se non esiste
+  if (!fs.existsSync(workspaceDir)) {
+    fs.mkdirSync(workspaceDir, { recursive: true });
+    console.log(`Directory ${workspaceDir} created.`);
+  } else {
+    console.log(`Directory ${workspaceDir} already exists.`);
+  }
+
   createWindow();
 
   // On OS X it's common to re-create a window in the app when the
@@ -60,5 +87,38 @@ app.on('window-all-closed', () => {
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+ipcMain.handle('tree:getFilesAndFolders', () => {
+  
+  return searchWorkspaceDirectory(workspaceDir);
+});
+
+const searchWorkspaceDirectory = (workspaceDir) => {
+  const result = [];
+  const directories = fs.readdirSync(workspaceDir, { withFileTypes: true })
+                        .filter(dirent => dirent.isDirectory())
+                        .map(dirent => dirent.name);
+  
+  directories.forEach(dir => {
+    const dirPath = path.join(workspaceDir, dir);
+    const files = glob.sync('**/traces.csv', { cwd: dirPath, nodir: true });
+    const campaignList = [];
+    files.forEach(file => {
+      const filePath = path.join(dirPath, file);
+      const campaign = {
+        id: filePath,
+        name: file,
+    }
+    campaignList.push(campaign);
+    })
+
+    result.push({
+      _id:dirPath,
+      name: dir,
+      campaignList: campaignList,
+    })
+    
+  });
+
+  return result;
+};
+

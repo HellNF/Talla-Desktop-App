@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { FileContext } from "../store/FileContext.jsx";
+import { FileContext } from "../store/uploadedFileContext.jsx";
 import FormData from "form-data";
 import InputFile from "./InputFile.jsx";
 

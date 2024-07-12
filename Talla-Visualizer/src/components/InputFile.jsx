@@ -1,8 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { DocumentIcon } from '@heroicons/react/24/solid';
-import { FileContext } from '../store/FileContext.jsx';
+import { FileContext } from '../store/uploadedFileContext.jsx';
 import {XMarkIcon} from '@heroicons/react/24/solid';
+
 export default function InputFile() {
   const [fileData, setFileData] = useContext(FileContext);
   const [rejectedFiles, setRejectedFiles] = useState([]);
