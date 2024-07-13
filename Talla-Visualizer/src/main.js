@@ -92,6 +92,9 @@ ipcMain.handle('tree:getFilesAndFolders', () => {
   return searchWorkspaceDirectory(workspaceDir);
 });
 
+ipcMain.handle('LoadCSV', (event) => {
+  
+});
 const searchWorkspaceDirectory = (workspaceDir) => {
   const result = [];
   const directories = fs.readdirSync(workspaceDir, { withFileTypes: true })
