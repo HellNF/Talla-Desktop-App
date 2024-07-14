@@ -5,21 +5,33 @@ import { BaseURL } from '../costants.js';
 import {useMode} from '../store/ModeContext.jsx';
 
 
-export default function TreeCamapaignSelect({ handleTreeSelectChange, deep=false}) {
+export default function TreeCamapaignSelect({ handleTreeSelectChange, deep=false, type="csv"}) {
     const [data, setData] = useState([]);
     const {isOnline} = useMode();
     
     const [selectedNodeKey, setSelectedNodeKey] = useState(null);
 
     useEffect(() => {
-        isOnline && getCampaignGroups();
-        !isOnline && getFolderStructure();
+        if(type==="csv" ){
+            isOnline && getCampaignGroups();
+            !isOnline && getFolderStructure();
+        }
+        else if(type==="elements"){
+            !isOnline && getFolderStructureElement();
+        }
     }, [isOnline]);
 
+    function getFolderStructureElement(){
+        
+        window.electronAPI.invoke(  'tree:element:getFilesAndFolders').then((data) => {
+            setData(dataFormatter(data));
+        });
+        
+    }
     
     function getFolderStructure(){
         
-        window.electronAPI.invoke(  'tree:getFilesAndFolders').then((data) => {
+        window.electronAPI.invoke(  'tree:CSV:getFilesAndFolders').then((data) => {
             setData(dataFormatter(data));
         });
         

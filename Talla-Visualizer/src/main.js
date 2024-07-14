@@ -87,15 +87,49 @@ app.on('window-all-closed', () => {
   }
 });
 
-ipcMain.handle('tree:getFilesAndFolders', () => {
+ipcMain.handle('tree:CSV:getFilesAndFolders', () => {
   
-  return searchWorkspaceDirectory(workspaceDir);
+  return searchWorkspaceDirectory(workspaceDir,"**/traces.csv");
+});
+
+ipcMain.handle('tree:element:getFilesAndFolders', () => {
+  
+  return searchWorkspaceDirectory(workspaceDir,"**/elements/*.json");
 });
 
 ipcMain.handle('LoadCSV', (event) => {
   
 });
-const searchWorkspaceDirectory = (workspaceDir) => {
+
+ipcMain.handle('graph:getElementsData', (event, filePath) => {
+  const data = fs.readFileSync(filePath, 'utf8');
+  const jsData= JSON.parse(data);
+  console.log(jsData);
+  return transformObjectToEnvObject(jsData);
+
+});
+function transformObjectToEnvObject(original) {
+  const transformedObjects = [];
+
+  for (const [label, properties] of Object.entries(original)) {
+    const transformedObject = {
+      label: label,
+      shape: properties.shape,
+      coordinates: properties.vertex ? properties.vertex.map(v => ({ x: v[0], y: v[1] })) : [],
+      style: properties.style ? Object.entries(properties.style).map(([key, value]) => ({ key, value })) : [],
+    };
+
+    if (properties.shape === 'circle') {
+      transformedObject.radius = properties.radius;
+      transformedObject.centre = { x: properties.center[0], y: properties.center[1] };
+    }
+
+    transformedObjects.push(transformedObject);
+  }
+
+  return transformedObjects;
+}
+const searchWorkspaceDirectory = (workspaceDir, pattern) => {
   const result = [];
   const directories = fs.readdirSync(workspaceDir, { withFileTypes: true })
                         .filter(dirent => dirent.isDirectory())
@@ -103,7 +137,7 @@ const searchWorkspaceDirectory = (workspaceDir) => {
   
   directories.forEach(dir => {
     const dirPath = path.join(workspaceDir, dir);
-    const files = glob.sync('**/traces.csv', { cwd: dirPath, nodir: true });
+    const files = glob.sync(pattern, { cwd: dirPath, nodir: true });
     const campaignList = [];
     files.forEach(file => {
       const filePath = path.join(dirPath, file);

@@ -9,6 +9,7 @@ import Home from "./pages/Home.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import { ModeProvider } from "./store/ModeContext.jsx";
 import { FileHandlerProvider } from "./store/FileHandlerContext.jsx";
+import { GraphProvider } from "./store/GraphContext.jsx";
 
 import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css"; // Importa gli stili dei componenti di PrimeReact
@@ -28,7 +29,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ModeProvider>
       <FileHandlerProvider>
-        <FileProvider>{router}</FileProvider>
+        <GraphProvider>
+          <FileProvider>{router}</FileProvider>
+        </GraphProvider>
       </FileHandlerProvider>
     </ModeProvider>
   </React.StrictMode>

@@ -1,72 +1,95 @@
-import React, { useState, useEffect } from 'react';
-import Plot from 'react-plotly.js';
+import React, { useRef, useEffect,useState } from "react";
+import Plot from "react-plotly.js";
+import { useResizeDetector } from "react-resize-detector";
+import { useDashboard } from "../store/FileHandlerContext.jsx";
+import { useMode } from "../store/ModeContext.jsx";
+import {useGraph} from '../store/GraphContext.jsx';
+import { data } from "autoprefixer";
 
-function Chart({ campaignData }) {
-    const [selectedTime, setSelectedTime] = useState(null);
-    const [filteredData, setFilteredData] = useState([]);
-
+function Chart({ onResize }) {
+    const { currentFile,envObjFile } = useDashboard();
+    const {isOnline} = useMode();
+    const {currentFileData,setCurrentFileData,envObjFileData,setEnvObjFileData} = useGraph();
+    const { width, height, ref } = useResizeDetector();
+    const [revision, setRevision] = useState(0);
+    const [shapes, setShapes] = useState([]);
     useEffect(() => {
-        // Inizializza selectedTime al primo valore di tempo disponibile
-        if (campaignData.length > 0) {
-            setSelectedTime(campaignData[0].time);
+        const fetchData = async () => {
+          if (!isOnline && envObjFile !== null) {
+            const data = await window.electronAPI.invoke('graph:getElementsData', envObjFile);
+            setEnvObjFileData(data);
+    
+            const newShapes = data.map(item => {
+              if (item.shape === "rectangle") {
+                return {
+                  type: 'rect',
+                  x0: item.coordinates[0].x,
+                  y0: item.coordinates[0].y,
+                  x1: item.coordinates[2].x,
+                  y1: item.coordinates[2].y,
+                  line: {
+                    color: 'rgba(128, 0, 128, 1)',
+                    width: 3
+                  }
+                };
+              } else if (item.shape === "circle") {
+                return {
+                  type: 'circle',
+                  x0: item.centre.x - item.radius,
+                  y0: item.centre.y - item.radius,
+                  x1: item.centre.x + item.radius,
+                  y1: item.centre.y + item.radius,
+                  line: {
+                    color: 'rgba(128, 43, 10, 0.5)',
+                    width: 3
+                  }
+                };
+              } else {
+                return null;
+              }
+            }).filter(shape => shape !== null);
+    
+            setShapes(newShapes);
+            setRevision(prev => prev + 1);
+          }
+        };
+        fetchData();
+      }, [envObjFile, isOnline, setEnvObjFileData]);
+
+    
+  return (
+    <div className="w-full h-full" ref={ref}>
+      <Plot
+        data={
+            [
+                {
+                x: [1, 2, 3, 4],
+                y: [10, 15, 13, 17],
+                type: "scatter",
+                mode: "lines+points",
+                marker: { color: "red" },
+                },
+                {
+                x: [1, 2, 3, 4],
+                y: [16, 5, 11, 9],
+                type: "scatter",
+                mode: "lines+points",
+                marker: { color: "blue" },
+                },
+            ]
         }
-    }, [campaignData]);
-
-    // Gestisce il cambio del tempo selezionato
-    const handleTimeChange = (event) => {
-        const time = parseFloat(event.target.value);
-        setSelectedTime(time);
-    };
-
-    // Filtra i dati in base al tempo selezionato
-    useEffect(() => {
-        if (campaignData.length > 0 && selectedTime !== null) {
-            const dataFiltered = campaignData.filter(item => item.tag_id === 103);
-            setFilteredData(dataFiltered);
-        } else {
-            setFilteredData([]);
-        }
-    }, [campaignData, selectedTime]);
-
-    return (
-        <div>
-            <h1>Dashboard</h1>
-            {/* Selettore di Timeline */}
-            <div style={{ marginBottom: '20px' }}>
-                <input
-                    type="range"
-                    min={campaignData.length > 0 ? campaignData[0].time : 0}
-                    max={campaignData.length > 0 ? campaignData[campaignData.length - 1].time : 0}
-                    step={0.001}
-                    value={selectedTime || ''}
-                    onChange={handleTimeChange}
-                    style={{ width: '80%' }}
-                />
-                <span>{selectedTime}</span>
-            </div>
-
-            {/* Grafico Plotly */}
-            <Plot
-                data={[
-                    {
-                        x: filteredData.map(row => row.x_kf),
-                        y: filteredData.map(row => row.y_kf),
-                        text: filteredData.map(row => `Time: ${row.time}`),
-                        mode: 'markers',
-                        type: 'scatter',
-                        marker: { size: 12 },
-                    },
-                ]}
-                layout={{
-                    width: 720,
-                    height: 480,
-                    title: 'Positions of a Person',
-                    xaxis: { title: 'X Position' },
-                    yaxis: { title: 'Y Position' }
-                }}
-            />
-        </div>
-    );
+        layout={{
+          autosize: true,
+          title: "Positions of a Person",
+          shapes: shapes,
+        }}
+        config={{ responsive: true }}
+        style={{ width: "100%", height: "100%" }}
+        useResizeHandler={true}
+        revision={revision}
+      />
+    </div>
+  );
 }
 
 export default Chart;

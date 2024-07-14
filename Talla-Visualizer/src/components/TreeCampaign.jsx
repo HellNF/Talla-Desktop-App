@@ -18,7 +18,7 @@ export default function TreeCampaign() {
     
     function getFolderStructure(){
         
-        window.electronAPI.invoke(  'tree:getFilesAndFolders').then((data) => {
+        window.electronAPI.invoke('tree:CSV:getFilesAndFolders').then((data) => {
             setData(dataFormatter(data));
         });
         
