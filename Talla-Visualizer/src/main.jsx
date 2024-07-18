@@ -14,7 +14,7 @@ import { GraphProvider } from "./store/GraphContext.jsx";
 import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css"; // Importa gli stili dei componenti di PrimeReact
 import "primeicons/primeicons.css";
-
+import { ViewSettingsProvider } from "./store/viewSettingsContext.jsx";
 const router = (
   <HashRouter>
     <Routes>
@@ -29,9 +29,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ModeProvider>
       <FileHandlerProvider>
-        <GraphProvider>
-          <FileProvider>{router}</FileProvider>
-        </GraphProvider>
+        <ViewSettingsProvider>
+          <GraphProvider>
+            <FileProvider>{router}</FileProvider>
+          </GraphProvider>
+        </ViewSettingsProvider>
       </FileHandlerProvider>
     </ModeProvider>
   </React.StrictMode>

@@ -59,7 +59,7 @@ export default function TreeCamapaignSelect({ handleTreeSelectChange, deep=false
             });
             formattedData.push(formattedGroup);
         });
-        console.log(formattedData);
+        
         return formattedData;
     }
 

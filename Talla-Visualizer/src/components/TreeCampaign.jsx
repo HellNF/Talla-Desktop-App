@@ -55,7 +55,7 @@ export default function TreeCampaign() {
             });
             formattedData.push(formattedGroup);
         });
-        console.log(formattedData);
+        
         return formattedData;
     }
 

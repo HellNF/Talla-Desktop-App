@@ -3,15 +3,23 @@ import { useMode, isOnline, toggleMode } from "../store/ModeContext.jsx";
 import TreeCampaign from "./TreeCampaign.jsx";
 import { useDashboard} from "../store/FileHandlerContext.jsx";
 export default function SelectCampaignForm() {
-  const { currentFile, selectFile, isSet, setIsSet, fpsMode, setFpsMode } = useDashboard();
+  const { currentFile, selectFile, isSet, setIsSet, fpsMode, setFpsMode,index,setIndex } = useDashboard();
   return (
     <>
       <form className="flex flex-col items-center w-3/5 bg-primary p-5 rounded-lg shadow-md" onSubmit={(e)=>{
           e.preventDefault();
           if(currentFile!=="" && fpsMode!==null ){
               setIsSet(true);
-          }
+              console.log(fpsMode);
+              window.electronAPI.invoke("LoadCSV",  {file : currentFile, fps : fpsMode}).then((data)=>{
+                  console.log(data);
+                  setIndex({
+                    ...index, ...data
+                  });
+              });
 
+          }
+  
       }}>
         <div className="flex w-full flex-col space-y-4 ">
           <h2 className="text-lg  font-semibold leading-7 px-4">

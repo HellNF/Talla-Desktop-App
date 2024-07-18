@@ -1,11 +1,15 @@
 const { app, BrowserWindow,session, ipcMain  } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
+const util = require('node:util');
 const os=require('node:os');
+const createContextMenu = require('./context-menu.js');
+const exec = util.promisify(require('child_process').exec);
 
 const installExtension = require('electron-devtools-installer').default;
 const { REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
-const { glob } = require('glob');
+const { glob, globSync } = require('glob');
+const { dir } = require('node:console');
 
 // Definisci il percorso della directory di lavoro
 const documentsDir = path.join(os.homedir(), 'Documents');
@@ -31,7 +35,7 @@ const createWindow = () => {
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-
+  createContextMenu(mainWindow);
   if (isDev) {
     mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
       callback({
@@ -96,11 +100,35 @@ ipcMain.handle('tree:element:getFilesAndFolders', () => {
   
   return searchWorkspaceDirectory(workspaceDir,"**/elements/*.json");
 });
+//processing dei dati
+ipcMain.handle('LoadCSV', async (event, prop) => {
+  const dirPath = path.dirname(prop.file);
+  const dirs = glob.sync(`processed_data/${prop.fps}fps/`, { cwd: dirPath, root: dirPath });
+  console.log(dirs);
 
-ipcMain.handle('LoadCSV', (event) => {
-  
+  if (dirs.length === 0) {
+    const scriptPath = path.join(app.getAppPath(), 'src', 'scripts', 'processCsvThroughFps.py');
+    const command = `python "${scriptPath}" "${prop.file}" ${prop.fps}`;
+
+    try {
+      const { stdout, stderr } = await exec(command);
+      if (stderr) {
+        console.error(`stderr: ${stderr}`);
+      }
+      console.log(`stdout: ${stdout}`);
+    } catch (error) {
+      console.error(`Error executing script: ${error.message}`);
+      throw error; // Rilancia l'errore per gestirlo nel contesto del chiamante
+    }
+  }
+
+  const dirName = path.join(dirPath, "processed_data", `${prop.fps}fps`, 'index.json');
+  const data = fs.readFileSync(dirName, 'utf8');
+  console.log(data);
+  return JSON.parse(data);
 });
 
+// ottenimento degli Elementi ambientali per il grafico
 ipcMain.handle('graph:getElementsData', (event, filePath) => {
   const data = fs.readFileSync(filePath, 'utf8');
   const jsData= JSON.parse(data);
