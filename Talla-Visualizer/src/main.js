@@ -1,15 +1,14 @@
-const { app, BrowserWindow,session, ipcMain  } = require('electron');
+const { app, BrowserWindow, session, ipcMain } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 const util = require('node:util');
-const os=require('node:os');
+const os = require('node:os');
 const createContextMenu = require('./context-menu.js');
 const exec = util.promisify(require('child_process').exec);
 
 const installExtension = require('electron-devtools-installer').default;
 const { REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
-const { glob, globSync } = require('glob');
-const { dir } = require('node:console');
+const { glob } = require('glob');
 
 // Definisci il percorso della directory di lavoro
 const documentsDir = path.join(os.homedir(), 'Documents');
@@ -26,9 +25,8 @@ const createWindow = () => {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(app.getAppPath(),'src', 'preload.js'),
+      preload: path.join(app.getAppPath(), 'src', 'preload.js'),
       nodeIntegration: false,
-      
     },
     autoHideMenuBar: false,
   });
@@ -42,7 +40,7 @@ const createWindow = () => {
         responseHeaders: {
           ...details.responseHeaders,
           'Content-Security-Policy': [
-            "default-src 'self' 'unsafe-inline' 'unsafe-eval' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;"
+            "default-src 'self' 'unsafe-inline' 'unsafe-eval' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;",
           ],
         },
       });
@@ -57,11 +55,10 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then( () => {
-
+app.whenReady().then(() => {
   installExtension(REACT_DEVELOPER_TOOLS)
-  .then((name) => console.log(`Added Extension:  ${name}`))
-  .catch((err) => console.log('An error occurred: ', err));
+    .then((name) => console.log(`Added Extension:  ${name}`))
+    .catch((err) => console.log('An error occurred: ', err));
 
   // Crea la directory di lavoro se non esiste
   if (!fs.existsSync(workspaceDir)) {
@@ -92,19 +89,17 @@ app.on('window-all-closed', () => {
 });
 
 ipcMain.handle('tree:CSV:getFilesAndFolders', () => {
-  
-  return searchWorkspaceDirectory(workspaceDir,"**/traces.csv");
+  return searchWorkspaceDirectory(workspaceDir, "**/traces.csv");
 });
 
 ipcMain.handle('tree:element:getFilesAndFolders', () => {
-  
-  return searchWorkspaceDirectory(workspaceDir,"**/elements/*.json");
+  return searchWorkspaceDirectory(workspaceDir, "**/elements/*.json");
 });
-//processing dei dati
-ipcMain.handle('LoadCSV', async (event, prop) => {
+
+// Processing dei dati
+ipcMain.handle('ProcessCSV', async (event, prop) => {
   const dirPath = path.dirname(prop.file);
   const dirs = glob.sync(`processed_data/${prop.fps}fps/`, { cwd: dirPath, root: dirPath });
-  console.log(dirs);
 
   if (dirs.length === 0) {
     const scriptPath = path.join(app.getAppPath(), 'src', 'scripts', 'processCsvThroughFps.py');
@@ -124,18 +119,60 @@ ipcMain.handle('LoadCSV', async (event, prop) => {
 
   const dirName = path.join(dirPath, "processed_data", `${prop.fps}fps`, 'index.json');
   const data = fs.readFileSync(dirName, 'utf8');
-  console.log(data);
   return JSON.parse(data);
 });
 
-// ottenimento degli Elementi ambientali per il grafico
+ipcMain.handle('LoadCSV', async (event, prop) => {
+  const dirPath = path.dirname(prop.file);
+  let dirName = prop.files.join('_');
+  const alreadyDone = glob.sync(`processed_data/${prop.fps}fps/${dirName}/`, { cwd: dirPath, root: dirPath });
+
+  if (alreadyDone.length === 0) {
+    const dirs = glob.sync(`processed_data/${prop.fps}fps/*.csv`, { cwd: dirPath, root: dirPath });
+    const files = [];
+    prop.files.forEach(file => {
+      for (const dir of dirs) {
+        if (dir.includes(file)) {
+          files.push(path.join(dirPath, dir));
+          break;
+        }
+      }
+    });
+
+    const framesPerFile = prop.fps == 5 ? 2000 : prop.fps == 10 ? 1000 : 500;
+    const baseDir = path.join(dirPath, "processed_data", `${prop.fps}fps`);
+    const command = `python "${path.join(app.getAppPath(), 'src', 'scripts', 'mergeCsvAndSplit.py')}" --input_files "${files.join('" "')}" --base_dir "${baseDir}" --frames_per_file ${framesPerFile} --output_dir "${dirName}"`;
+
+    try {
+      const { stdout, stderr } = await exec(command);
+      if (stderr) {
+        console.error(`stderr: ${stderr}`);
+      }
+      console.log(`stdout: ${stdout}`);
+    } catch (error) {
+      console.error(`Error executing script: ${error.message}`);
+      throw error;
+    }
+  }
+
+  const indexFile = path.join(dirPath, "processed_data", `${prop.fps}fps`, dirName, 'index.json');
+  console.log(indexFile);
+  const data = fs.readFileSync(indexFile, 'utf8');
+  // console.log(data);
+  return JSON.parse(data);
+});
+ipcMain.handle('LoadCSV:readFile', async (event, file) => {
+  const dirPath = path.dirname(file);
+  const data = fs.readFileSync(file, 'utf8');
+  return JSON.parse(data);
+});
+// Ottenimento degli Elementi ambientali per il grafico
 ipcMain.handle('graph:getElementsData', (event, filePath) => {
   const data = fs.readFileSync(filePath, 'utf8');
-  const jsData= JSON.parse(data);
-  console.log(jsData);
+  const jsData = JSON.parse(data);
   return transformObjectToEnvObject(jsData);
-
 });
+
 function transformObjectToEnvObject(original) {
   const transformedObjects = [];
 
@@ -157,12 +194,13 @@ function transformObjectToEnvObject(original) {
 
   return transformedObjects;
 }
+
 const searchWorkspaceDirectory = (workspaceDir, pattern) => {
   const result = [];
   const directories = fs.readdirSync(workspaceDir, { withFileTypes: true })
-                        .filter(dirent => dirent.isDirectory())
-                        .map(dirent => dirent.name);
-  
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name);
+
   directories.forEach(dir => {
     const dirPath = path.join(workspaceDir, dir);
     const files = glob.sync(pattern, { cwd: dirPath, nodir: true });
@@ -172,18 +210,17 @@ const searchWorkspaceDirectory = (workspaceDir, pattern) => {
       const campaign = {
         id: filePath,
         name: file,
-    }
-    campaignList.push(campaign);
+      }
+      campaignList.push(campaign);
     })
 
     result.push({
-      _id:dirPath,
+      _id: dirPath,
       name: dir,
       campaignList: campaignList,
     })
-    
+
   });
 
   return result;
 };
-

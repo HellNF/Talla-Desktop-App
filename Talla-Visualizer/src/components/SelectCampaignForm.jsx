@@ -11,7 +11,7 @@ export default function SelectCampaignForm() {
           if(currentFile!=="" && fpsMode!==null ){
               setIsSet(true);
               console.log(fpsMode);
-              window.electronAPI.invoke("LoadCSV",  {file : currentFile, fps : fpsMode}).then((data)=>{
+              window.electronAPI.invoke("ProcessCSV",  {file : currentFile, fps : fpsMode}).then((data)=>{
                   console.log(data);
                   setIndex({
                     ...index, ...data

@@ -26,7 +26,12 @@ export default function TreeCampaign() {
     function handleTreeChange(key,data){
         for(let item of data){
            if(item.key == key){
+            if(!isOnline && item.data.split('.').pop() == 'csv'){
              selectFile(item.data);
+            }
+            else if(isOnline){
+                selectFile(item.data);
+            }
            }
            if(item.children){
              handleTreeChange(key,item.children);

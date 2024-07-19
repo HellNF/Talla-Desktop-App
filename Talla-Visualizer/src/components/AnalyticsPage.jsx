@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Splitter, SplitterPanel } from "primereact/splitter";
 import { useDashboard } from "../store/FileHandlerContext.jsx";
 import { RgbaColorPicker, RgbaStringColorPicker } from "react-colorful";
@@ -48,13 +48,23 @@ export default function AnalyticsPage() {
     selectEnvObjFile,
     index,
     setIndex,
-    setCurrentTags
+    currentTags,
+    setCurrentTags,fpsMode
   } = useDashboard();
   const [isDetailsOn, setIsDetailsOn] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { shapes, setShapes } = useViewSettings();
 
+  useEffect(() => {
+    if (currentFile !== "" && index !== null && currentTags.length > 0) {
+      const files=[]
+      currentTags.map((tag)=>{files.push(index.tags.filter((obj)=>{return obj.tag_id == tag})[0].tag_id)});
+      window.electronAPI.invoke("LoadCSV", { file: currentFile,files:files ,fps:fpsMode}).then((data) => {
+       setIndex({ ...index, fileIndex: data }); 
+      });
+    }
+  },[currentTags])
   function handleTreeSelectChange(key, data) {
     for (let item of data) {
       if (item.key == key) {
@@ -67,9 +77,9 @@ export default function AnalyticsPage() {
   }
   return (
     <div className="w-full h-full pt-20 flex flex-col items-center px-2">
-      <div className="w-full m-2 flex flex-row justify-between mr-4">
-        <div className="font-medium text-lg ">
-          <h1>{currentFile}</h1>
+      <div className="w-full m-2 flex flex-row justify-between mx-4 items-center">
+        <div className="font-medium text-sm md:text-base xl:text-lg ">
+          <h1>{currentFile!==""?"..."+currentFile.split("TallaWorkspace")[1]:''}</h1>
         </div>
         <div className="flex flex-row items-center space-x-5">
           <TreeCampaignSelect

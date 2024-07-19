@@ -3,21 +3,19 @@ import os
 import json
 import argparse
 
-def merge_csv_files(input_files, base_dir):
+def merge_csv_files(input_files, base_dir, output_dir):
     """Unisce più file CSV in un unico file CSV."""
     merged_df = pd.concat([pd.read_csv(os.path.join(base_dir, file)) for file in input_files])
     
-    # Creazione del nome della sottocartella basato sui nomi dei file uniti
-    combined_name = "_".join([os.path.splitext(file)[0] for file in input_files])
-    output_dir = os.path.join(base_dir, combined_name)
+    sub_dir = os.path.join(base_dir, output_dir)
     
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    if not os.path.exists(sub_dir):
+        os.makedirs(sub_dir)
     
-    merged_output_file = os.path.join(output_dir, 'merged.csv')
+    merged_output_file = os.path.join(sub_dir, 'merged.csv')
     merged_df.to_csv(merged_output_file, index=False)
     print(f'Merged file saved as {merged_output_file}')
-    return merged_output_file, output_dir
+    return merged_output_file, sub_dir
 
 def split_csv_by_frame(input_file, output_dir, frames_per_file):
     """Divide un file CSV in base al range di frame."""
@@ -53,15 +51,19 @@ def main():
     parser = argparse.ArgumentParser(description='Merge and split CSV files.')
     parser.add_argument('--input_files', nargs='+', required=True, help='List of input CSV files')
     parser.add_argument('--base_dir', required=True, help='Base directory containing the input CSV files')
+    parser.add_argument('--output_dir', required=True, help='Directory to save the output files')
     parser.add_argument('--frames_per_file', type=int, required=True, help='Number of frames per output file')
     
     args = parser.parse_args()
-
-    # Unisci i file CSV
-    merged_file, output_dir = merge_csv_files(args.input_files, args.base_dir)
-
-    # Dividi il file unito in base al range di frame ed elimina il file unito
-    split_csv_by_frame(merged_file, output_dir, args.frames_per_file)
+    dir=os.path.join(args.base_dir, args.output_dir)
+    if not os.path.exists(dir):
+        # Unisci i file CSV
+        merged_file, output_sub_dir = merge_csv_files(args.input_files, args.base_dir, args.output_dir)
+        # Dividi il file unito in base al range di frame ed elimina il file unito
+        split_csv_by_frame(merged_file, output_sub_dir, args.frames_per_file)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"Error: {e}")
