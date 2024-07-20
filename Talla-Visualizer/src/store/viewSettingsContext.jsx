@@ -6,13 +6,14 @@ const ViewSettingsContext = createContext();
 // Crea un provider per il contesto
 export const ViewSettingsProvider = ({ children }) => {
   const [shapes, setShapes] = useState([]);
+  const [tagSetting, setTagSetting] = useState({});
   
   
 
   
 
   return (
-    <ViewSettingsContext.Provider value={{shapes, setShapes}}>
+    <ViewSettingsContext.Provider value={{shapes, setShapes,tagSetting, setTagSetting}}>
       {children}
     </ViewSettingsContext.Provider>
   );

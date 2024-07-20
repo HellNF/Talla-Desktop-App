@@ -5,7 +5,7 @@ const util = require('node:util');
 const os = require('node:os');
 const createContextMenu = require('./context-menu.js');
 const exec = util.promisify(require('child_process').exec);
-
+const csvtojson = require('csvtojson');
 const installExtension = require('electron-devtools-installer').default;
 const { REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
 const { glob } = require('glob');
@@ -161,10 +161,16 @@ ipcMain.handle('LoadCSV', async (event, prop) => {
   // console.log(data);
   return JSON.parse(data);
 });
+// Handler per leggere il file CSV e convertirlo in JSON
 ipcMain.handle('LoadCSV:readFile', async (event, file) => {
-  const dirPath = path.dirname(file);
-  const data = fs.readFileSync(file, 'utf8');
-  return JSON.parse(data);
+  try {
+    const csvFilePath = path.resolve(file);
+    const jsonArray = await csvtojson().fromFile(csvFilePath);
+    return jsonArray;
+  } catch (error) {
+    console.error('Error reading and converting CSV:', error);
+    throw error;
+  }
 });
 // Ottenimento degli Elementi ambientali per il grafico
 ipcMain.handle('graph:getElementsData', (event, filePath) => {
