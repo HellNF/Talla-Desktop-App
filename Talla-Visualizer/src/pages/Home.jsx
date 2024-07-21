@@ -9,8 +9,8 @@ function Home() {
       
       <TallaNavbar></TallaNavbar>
         <div className="flex justify-center items-center h-screen bg-gray-100">
-            {/* <h1 className="text-6xl text-gray-800">Home</h1> */}
-            <AnalyticsPage></AnalyticsPage>
+            <h1 className="text-6xl text-gray-800">Home</h1>
+            
             
         </div>
     </div>

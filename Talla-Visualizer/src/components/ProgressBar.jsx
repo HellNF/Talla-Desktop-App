@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 
-const ProgressBar = ({ initialValue = 0, maxValue = 100, loadedValue = 0 }) => {
+const ProgressBar = ({ initialValue = 0, maxValue = 100, loadedValue = 0, onChange }) => {
   const [value, setValue] = useState(initialValue);
   const [hoverValue, setHoverValue] = useState(null);
   const barRef = useRef(null);
@@ -12,6 +12,7 @@ const ProgressBar = ({ initialValue = 0, maxValue = 100, loadedValue = 0 }) => {
       const offsetX = e.clientX - rect.left;
       const newValue = (offsetX / rect.width) * maxValue;
       setValue(Math.max(0, Math.min(maxValue, newValue)));
+      onChange(Math.max(0, Math.min(maxValue, newValue)));
     };
 
     const handleMouseMove = (e) => {
@@ -72,3 +73,4 @@ const ProgressBar = ({ initialValue = 0, maxValue = 100, loadedValue = 0 }) => {
 };
 
 export default ProgressBar;
+

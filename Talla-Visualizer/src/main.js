@@ -125,6 +125,7 @@ ipcMain.handle('ProcessCSV', async (event, prop) => {
 ipcMain.handle('LoadCSV', async (event, prop) => {
   const dirPath = path.dirname(prop.file);
   let dirName = prop.files.join('_');
+  
   const alreadyDone = glob.sync(`processed_data/${prop.fps}fps/${dirName}/`, { cwd: dirPath, root: dirPath });
 
   if (alreadyDone.length === 0) {
@@ -156,17 +157,26 @@ ipcMain.handle('LoadCSV', async (event, prop) => {
   }
 
   const indexFile = path.join(dirPath, "processed_data", `${prop.fps}fps`, dirName, 'index.json');
-  console.log(indexFile);
+  
   const data = fs.readFileSync(indexFile, 'utf8');
   // console.log(data);
   return JSON.parse(data);
+  
 });
 // Handler per leggere il file CSV e convertirlo in JSON
 ipcMain.handle('LoadCSV:readFile', async (event, file) => {
   try {
     const csvFilePath = path.resolve(file);
     const jsonArray = await csvtojson().fromFile(csvFilePath);
-    return jsonArray;
+    const groupedData = jsonArray.reduce((acc, obj) => {
+      const frame = obj.frame;
+      if (!acc[frame]) {
+        acc[frame] = [];
+      }
+      acc[frame].push(obj);
+      return acc;
+    },{});
+    return groupedData;
   } catch (error) {
     console.error('Error reading and converting CSV:', error);
     throw error;

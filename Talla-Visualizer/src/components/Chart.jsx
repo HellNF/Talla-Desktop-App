@@ -15,14 +15,14 @@ function getRandomColor() {
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
-function Chart({ onResize }) {
+function Chart() {
   const { currentFile, envObjFile, index, currentTags } = useDashboard();
   const { isOnline } = useMode();
-  const { currentFileData, setCurrentFileData, envObjFileData, setEnvObjFileData } = useGraph();
+  const { currentFileData, setCurrentFileData, envObjFileData, setEnvObjFileData,setCurrentFrame,currentFrame } = useGraph();
   const { width, height, ref } = useResizeDetector();
   const [revision, setRevision] = useState(0);
   const { shapes, setShapes, tagSetting, setTagSetting } = useViewSettings();
-
+  const [plotData, setPlotData] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       if (!isOnline && envObjFile !== null) {
@@ -83,6 +83,7 @@ function Chart({ onResize }) {
       if (!isOnline && currentFile !== null && index !== null && index.fileIndex !== undefined && index.fileIndex.length > 0) {
         const data = await window.electronAPI.invoke('LoadCSV:readFile', index.fileIndex[0].file);
         setCurrentFileData(data);
+        
       }
     };
     fetchFileData();
@@ -100,29 +101,41 @@ function Chart({ onResize }) {
     }
   }, [currentTags]);
 
-  const plotData = 
-  !currentFileData? [] :
-    currentTags.map(tag => {
-      const x = [];
-      const y = [];
-      currentFileData.filter(item => item["tag_id"] === tag).forEach(item => {
-        x.push(item["x_kf"]);
-        y.push(item["y_kf"]);
+  useEffect(() => {
+    const pd=[] 
+    
+    if (currentFileData[currentFrame]) {
+      currentFileData[currentFrame].forEach((item) => {
+        
+        if (currentTags.includes(item.tag_id)) {
+          const tagSettingItem = tagSetting[item.tag];
+          pd.push({
+            x: [item.x_kf],
+            y: [item.y_kf],
+            mode: "markers",
+            type: "scatter",
+            name: item.tag,
+            legendgroup: item.tag,
+            marker: {
+              color: tagSettingItem?.color,
+            },
+          });
+        }
       });
-      return {
-        type: "scatter",
-        mode: "markers",
-        x: x,
-        y: y,
-        name: tag,
-        marker: { color: tagSetting[tag]?.color || getRandomColor() },
-      };
-    });
+      setPlotData(pd)
+      setRevision(prev => prev + 1);
+    }
+  },[currentFrame,currentFileData,currentTags,tagSetting])
+
+  
+ 
 
   return (
     <div className="w-full h-full" ref={ref}>
       <Plot
-        data={plotData}
+        data={[
+          ...plotData,
+        ]}        
         layout={{
           autosize: true,
           title: "Positions of a Person",

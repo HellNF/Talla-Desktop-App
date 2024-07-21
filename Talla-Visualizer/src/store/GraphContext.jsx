@@ -7,12 +7,14 @@ const GraphContext = createContext();
 export const GraphProvider = ({ children }) => {
   const [currentFileData, setCurrentFileData] = useState([]);
   const [envObjFileData, setEnvObjFileData] = useState([]);
+  const [currentFrame, setCurrentFrame] = useState(0);
+  const [play, setPlay] = useState(false);
   
 
   
 
   return (
-    <GraphContext.Provider value={{ currentFileData,setCurrentFileData,envObjFileData,setEnvObjFileData}}>
+    <GraphContext.Provider value={{ currentFileData,setCurrentFileData,envObjFileData,setEnvObjFileData,currentFrame, setCurrentFrame,play, setPlay}}>
       {children}
     </GraphContext.Provider>
   );
