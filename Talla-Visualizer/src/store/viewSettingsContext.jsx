@@ -7,13 +7,13 @@ const ViewSettingsContext = createContext();
 export const ViewSettingsProvider = ({ children }) => {
   const [shapes, setShapes] = useState([]);
   const [tagSetting, setTagSetting] = useState({});
-  
+  const [speedfactor, setSpeedFactor] = useState(1);
   
 
   
 
   return (
-    <ViewSettingsContext.Provider value={{shapes, setShapes,tagSetting, setTagSetting}}>
+    <ViewSettingsContext.Provider value={{shapes, setShapes,tagSetting, setTagSetting,speedfactor, setSpeedFactor}}>
       {children}
     </ViewSettingsContext.Provider>
   );

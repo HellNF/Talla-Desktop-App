@@ -1,10 +1,19 @@
-import React, { useRef, useState } from 'react';
-
-const ProgressBar = ({ initialValue = 0, maxValue = 100, loadedValue = 0, onChange }) => {
+import React, { useEffect, useRef, useState } from 'react';
+import { useGraph } from '../store/GraphContext.jsx';
+import { useDashboard } from '../store/FileHandlerContext.jsx';
+const ProgressBar = ({ initialValue = 0, maxValue = 100, onChange }) => {
   const [value, setValue] = useState(initialValue);
   const [hoverValue, setHoverValue] = useState(null);
+  const {index}=useDashboard();
+  const {currentFileIndexLoaded,currentFrame} = useGraph();
   const barRef = useRef(null);
-
+  const [loadedValue, setLoadedValue] = useState(0);
+  useEffect(() => {
+    setValue(currentFrame);
+  }, [currentFrame]);
+  useEffect(() => {
+    setLoadedValue(index && index.fileIndex && index.fileIndex[currentFileIndexLoaded]? index?.fileIndex[currentFileIndexLoaded].end_frame : 0);
+  }, [currentFileIndexLoaded]);
   const handleMouseDown = (e) => {
     const bar = barRef.current;
     const updateValue = (e) => {

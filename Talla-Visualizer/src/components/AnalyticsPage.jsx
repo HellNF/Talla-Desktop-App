@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Splitter, SplitterPanel } from "primereact/splitter";
 import { useDashboard } from "../store/FileHandlerContext.jsx";
-import { Checkbox } from 'primereact/checkbox';
+import { Checkbox } from "primereact/checkbox";
+import SpeedDropDown from "./SpeedDropDown.jsx";
+import Spinner from "./Spinner.jsx";
+import TagShowBar from "./TagShowBar.jsx";
 import {
   AdjustmentsVerticalIcon,
   PlayIcon,
@@ -52,24 +55,71 @@ export default function AnalyticsPage() {
   const [isDetailsOn, setIsDetailsOn] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { shapes, setShapes } = useViewSettings();
-  const { currentFrame, setCurrentFrame,play,setPlay } = useGraph();
+  const { shapes, setShapes, speedfactor, setSpeedFactor } = useViewSettings();
+  const {
+    currentFrame,
+    setCurrentFrame,
+    play,
+    setPlay,
+    positionDetails,
+    currentFileData,
+    setcurrentFileData,
+  } = useGraph();
+
+  const [selectedTags, setSelectedTags] = useState(() => {
+    const initialSelectedTags = {};
+    index.tags.forEach((obj) => {
+      currentTags.includes(`${obj.tag_id}`)? initialSelectedTags[obj.tag_id] = true : initialSelectedTags[obj.tag_id] = false;    
+    });
+    return initialSelectedTags;
+  });
+
+  const handleSelectAll = () => {
+    const updatedTags = {};
+    index.tags.forEach((obj) => {
+      updatedTags[obj.tag_id] = true;
+    });
+    setSelectedTags(updatedTags);
+  };
+
+  const handleDeselectAll = () => {
+    const updatedTags = {};
+    index.tags.forEach((obj) => {
+      updatedTags[obj.tag_id] = false;
+    });
+    setSelectedTags(updatedTags);
+  };
+
+  const handleCheckboxChange = (tagId, checked) => {
+    setSelectedTags((prevSelectedTags) => ({
+      ...prevSelectedTags,
+      [tagId]: checked,
+    }));
+  };
 
   function frameToTime(frame, fpsMode) {
     const totalSeconds = frame / fpsMode;
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-  
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds.toFixed(2)).padStart(5, '0')}`;
+
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+      2,
+      "0"
+    )}:${String(seconds.toFixed(2)).padStart(5, "0")}`;
   }
 
   useEffect(() => {
     if (currentFile !== "" && index !== null && currentTags.length > 0) {
-      
-      window.electronAPI.invoke("LoadCSV", { file: currentFile, files: currentTags, fps: fpsMode }).then((data) => {
-        setIndex({ ...index, fileIndex: data });
-      });
+      window.electronAPI
+        .invoke("LoadCSV", {
+          file: currentFile,
+          files: currentTags,
+          fps: fpsMode,
+        })
+        .then((data) => {
+          setIndex({ ...index, fileIndex: data });
+        });
     }
   }, [currentTags, currentFile]);
 
@@ -84,7 +134,7 @@ export default function AnalyticsPage() {
       // Avvia l'incremento di currentFrame
       interval = setInterval(() => {
         setCurrentFrame((currentFrame) => currentFrame + 1);
-      }, 1000/fpsMode);
+      }, 1000 / fpsMode / speedfactor);
     } else if (!play && interval) {
       // Ferma l'incremento di currentFrame
       clearInterval(interval);
@@ -108,7 +158,11 @@ export default function AnalyticsPage() {
     <div className="w-full h-full pt-20 flex flex-col items-center px-2">
       <div className="w-full m-2 flex flex-row justify-between mx-4 items-center">
         <div className="font-medium text-sm md:text-base xl:text-lg ">
-          <h1>{currentFile !== "" ? "..." + currentFile.split("TallaWorkspace")[1] : ''}</h1>
+          <h1>
+            {currentFile !== ""
+              ? "..." + currentFile.split("TallaWorkspace")[1]
+              : ""}
+          </h1>
         </div>
         <div className="flex flex-row items-center space-x-5">
           <TreeCampaignSelect
@@ -124,6 +178,7 @@ export default function AnalyticsPage() {
               setIsSet(false);
               setIndex(null);
               setCurrentTags([]);
+              setcurrentFileData([]);
             }}
           >
             Change campaign
@@ -169,10 +224,7 @@ export default function AnalyticsPage() {
                         {shapes.length > 0 &&
                           shapes.map((shape, index) => {
                             return (
-                              <TableRow
-                                key={index}
-                                className=" items-center"
-                              >
+                              <TableRow key={index} className=" items-center">
                                 <TableCell>
                                   <label>{shape.label.text}</label>
                                 </TableCell>
@@ -181,7 +233,9 @@ export default function AnalyticsPage() {
                                     color={shape.fillcolor}
                                     onChange={(c) => {
                                       let newShapes = [...shapes];
-                                      newShapes[index].fillcolor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+                                      newShapes[
+                                        index
+                                      ].fillcolor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
                                       setShapes(newShapes);
                                     }}
                                   ></PopoverColorPicker>
@@ -191,17 +245,22 @@ export default function AnalyticsPage() {
                                     color={shape.line.color}
                                     onChange={(c) => {
                                       let newShapes = [...shapes];
-                                      newShapes[index].line.color = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+                                      newShapes[
+                                        index
+                                      ].line.color = `rgba(${c.r},${c.g},${c.b},${c.a})`;
                                       setShapes(newShapes);
                                     }}
                                   ></PopoverColorPicker>
                                 </TableCell>
                                 <TableCell>
-                                  <Checkbox checked={shape.visible} onChange={(e) => {
-                                    let newShapes = [...shapes];
-                                    newShapes[index].visible = e.checked;
-                                    setShapes(newShapes);
-                                  }}></Checkbox>
+                                  <Checkbox
+                                    checked={shape.visible}
+                                    onChange={(e) => {
+                                      let newShapes = [...shapes];
+                                      newShapes[index].visible = e.checked;
+                                      setShapes(newShapes);
+                                    }}
+                                  ></Checkbox>
                                 </TableCell>
                               </TableRow>
                             );
@@ -215,7 +274,10 @@ export default function AnalyticsPage() {
                     <Button variant="light" onPress={onClose}>
                       Close
                     </Button>
-                    <Button className="rounded-md bg-gray-700 " onPress={onClose}>
+                    <Button
+                      className="rounded-md bg-gray-700 "
+                      onPress={onClose}
+                    >
                       Action
                     </Button>
                   </ModalFooter>
@@ -235,88 +297,183 @@ export default function AnalyticsPage() {
                   !isFullScreen && "relative"
                 } flex flex-col items-center shadow`}
               >
-                <button
-                  type="button"
-                  className="absolute top-5 shadow left-5 rounded-full hover:scale-110 hover:bg-gray-50 p-2 hover:text-unitn-grey z-[110]"
-                  onClick={() => {
-                    setIsFullScreen(!isFullScreen);
-                  }}
-                >
-                  {isFullScreen ? (
-                    <ArrowsPointingInIcon className="h-6 w-6"></ArrowsPointingInIcon>
-                  ) : (
-                    <ArrowsPointingOutIcon className="h-6 w-6"></ArrowsPointingOutIcon>
-                  )}
-                </button>
-                <div
-                  className={
-                    isFullScreen
-                      ? `absolute top-0 left-0 h-screen w-full z-[100] p-6 bg-white flex flex-col items-center justify-center`
-                      : `flex flex-col items-center h-full w-full p-4`
-                    }
-                  >
-                    <Chart  />
-                    <div className="flex flex-col w-full h-30 px-3 mx-3 space-y-2 hide-scrollbar">
-                      <ProgressBar
-                        initialValue={index && index.fileIndex && index.fileIndex[0]? index.fileIndex[0].start_frame : 0}
-                        maxValue={index && index.fileIndex && index.fileIndex[0]? index?.fileIndex[index.fileIndex.length - 1].end_frame : 100}
-                        loadedValue={index && index.fileIndex && index.fileIndex[0]? index?.fileIndex[0].end_frame : 0}
-                        onChange={handleFrameChange}
-                      />
-                      <div className="flex flex-row w-full items-center justify-between text-unitn-grey/80">
-                        <label>{frameToTime(currentFrame, fpsMode)}</label>
-                        <div className="flex flex-row space-x-3">
-                          <button
-                            type="button"
-                            className="rounded-full hover:scale-110 hover:text-unitn-grey "
-                            onClick={() => handleFrameChange(Math.max(0, currentFrame - 1))}
-                          >
-                            <ChevronDoubleLeftIcon className="h-4 w-4"></ChevronDoubleLeftIcon>
-                          </button>
-                          <button
-                            type="button"
-                            className="rounded-full hover:scale-110 hover:text-unitn-grey "
-                            onClick={() => {setPlay(!play)
-                            }}
-                          >
-                            {play?<PauseIcon className="h-6 w-6"></PauseIcon> :<PlayIcon className="h-6 w-6"></PlayIcon>}
-                          </button>
-                          <button
-                            type="button"
-                            className="rounded-full hover:scale-110 hover:text-unitn-grey "
-                            onClick={() => handleFrameChange(currentFrame + 1)}
-                          >
-                            <ChevronDoubleRightIcon className="h-4 w-4"></ChevronDoubleRightIcon>
-                          </button>
+                {index.fileIndex === undefined ? (
+                  <Spinner></Spinner>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="absolute top-5 shadow left-5 rounded-full hover:scale-110 hover:bg-gray-50 p-2 hover:text-unitn-grey z-[110]"
+                      onClick={() => {
+                        setIsFullScreen(!isFullScreen);
+                      }}
+                    >
+                      {isFullScreen ? (
+                        <ArrowsPointingInIcon className="h-6 w-6"></ArrowsPointingInIcon>
+                      ) : (
+                        <ArrowsPointingOutIcon className="h-6 w-6"></ArrowsPointingOutIcon>
+                      )}
+                    </button>
+                    <div
+                      className={
+                        isFullScreen
+                          ? `absolute top-0 left-0 h-screen w-full z-[100] p-6 bg-white flex flex-col items-center justify-center`
+                          : `flex flex-col items-center h-full w-full p-4`
+                      }
+                    >
+                      <Chart />
+                      <div className="flex flex-col w-full h-30 px-3 mx-3 space-y-2 hide-scrollbar">
+                        <ProgressBar
+                          initialValue={
+                            index && index.fileIndex && index.fileIndex[0]
+                              ? index.fileIndex[0].start_frame
+                              : 0
+                          }
+                          maxValue={
+                            index && index.fileIndex && index.fileIndex[0]
+                              ? index?.fileIndex[index.fileIndex.length - 1]
+                                  .end_frame
+                              : 100
+                          }
+                          onChange={handleFrameChange}
+                        />
+                        <div className="flex flex-row w-full items-center justify-between text-unitn-grey/80">
+                          <label>{frameToTime(currentFrame, fpsMode)}</label>
+                          <div className="flex flex-row space-x-3">
+                            <button
+                              type="button"
+                              className="rounded-full hover:scale-110 hover:text-unitn-grey "
+                              onClick={() =>
+                                handleFrameChange(
+                                  Math.max(0, currentFrame - 30 * fpsMode)
+                                )
+                              }
+                            >
+                              <ChevronDoubleLeftIcon className="h-4 w-4"></ChevronDoubleLeftIcon>
+                            </button>
+                            <button
+                              type="button"
+                              className="rounded-full hover:scale-110 hover:text-unitn-grey "
+                              onClick={() => {
+                                setPlay(!play);
+                              }}
+                            >
+                              {play ? (
+                                <PauseIcon className="h-6 w-6"></PauseIcon>
+                              ) : (
+                                <PlayIcon className="h-6 w-6"></PlayIcon>
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              className="rounded-full hover:scale-110 hover:text-unitn-grey "
+                              onClick={() =>
+                                handleFrameChange(currentFrame + 30 * fpsMode)
+                              }
+                            >
+                              <ChevronDoubleRightIcon className="h-4 w-4"></ChevronDoubleRightIcon>
+                            </button>
+                          </div>
+                          <div>
+                            <SpeedDropDown></SpeedDropDown>
+                            <label>
+                              {index && index.fileIndex && index.fileIndex[0]
+                                ? frameToTime(
+                                    index.fileIndex[index.fileIndex.length - 1]
+                                      .end_frame,
+                                    fpsMode
+                                  )
+                                : "N/A"}
+                            </label>
+                          </div>
                         </div>
-                        <label>{index && index.fileIndex && index.fileIndex[0]? frameToTime(index.fileIndex[index.fileIndex.length - 1].end_frame, fpsMode) : "N/A"}</label>
                       </div>
                     </div>
-                  </div>
-                </SplitterPanel>
-                <SplitterPanel
-                  size={20}
-                  className="overflow-y-scroll shadow hide-scrollbar"
-                >
-                  <div className="p-2">
-                    <h1>Timelines</h1>
-                  </div>
-                </SplitterPanel>
-              </Splitter>
-            </SplitterPanel>
-            <SplitterPanel
-              id="details"
-              size={20}
-              minSize={1}
-              className={`overflow-y-scroll shadow hide-scrollbar ${isDetailsOn ? "" : "hidden"}`}
-            >
-              <div className="p-2">
-                <h1>Details</h1>
-              </div>
-            </SplitterPanel>
-          </Splitter>
-        </div>
+                  </>
+                )}
+              </SplitterPanel>
+              <SplitterPanel
+                size={20}
+                className="overflow-y-scroll shadow hide-scrollbar flex flex-col items-center"
+              >
+                <div className="p-2 w-full">
+                  <h1>Timelines</h1>
+                </div>
+                <div className="w-full flex flex-col items-center">
+                  {index.tags && index?.fileIndex ? (
+                    index.tags.map((item) => {
+                      return (
+                        <div className="flex flex-row items-center space-x-4 w-full px-3">
+                          <label
+                            key={item.tag_id}
+                            className="flex items-center  justify-center "
+                          >
+                            <input
+                              type="checkbox"
+                              className="form-checkbox text-details-blue focus:ring-details-light-blue rounded-md"
+                              name="option"
+                              value={item.tag_id}
+                              checked={selectedTags[item.tag_id] || false}
+                              onChange={(e) =>
+                                handleCheckboxChange(
+                                  item.tag_id,
+                                  e.target.checked
+                                )
+                              }
+                            />
+                            <span className="ml-2">{item.tag_id}</span>
+                          </label>
+                          <TagShowBar tag={item.tag_id}></TagShowBar>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div>
+                      <Spinner></Spinner>
+                    </div>
+                  )}
+                </div>
+              </SplitterPanel>
+            </Splitter>
+          </SplitterPanel>
+          <SplitterPanel
+            id="details"
+            size={20}
+            minSize={1}
+            className={`overflow-y-scroll shadow hide-scrollbar ${
+              isDetailsOn ? "" : "hidden"
+            }`}
+          >
+            <div className="p-2">
+              <h1>Details</h1>
+            </div>
+
+            <div className="flex flex-col space-y-3 items-center justify-center m-3 w-full max-w-xl">
+              {isDetailsOn && positionDetails ? (
+                Object.keys(positionDetails).map((key, index) => {
+                  return (
+                    <div
+                      key={index}
+                      className="flex flex-col md:flex-row items-center justify-between w-full bg-gray-100/80 rounded-md p-3 shadow-md"
+                    >
+                      <label className="  w-full  p-2 rounded-md text-black font-semibold text-center">
+                        {key}:
+                      </label>
+                      <label className="w-full  p-2 text-center  md:text-left">
+                        {positionDetails[key]}
+                      </label>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="text-center text-gray-500">
+                  No details available
+                </div>
+              )}
+            </div>
+          </SplitterPanel>
+        </Splitter>
       </div>
-    );
-  }
-  
+    </div>
+  );
+}

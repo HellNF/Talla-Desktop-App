@@ -27,6 +27,7 @@ const createWindow = () => {
     webPreferences: {
       preload: path.join(app.getAppPath(), 'src', 'preload.js'),
       nodeIntegration: false,
+      sandbox: false,
     },
     autoHideMenuBar: false,
   });
@@ -127,6 +128,7 @@ ipcMain.handle('LoadCSV', async (event, prop) => {
   let dirName = prop.files.join('_');
   
   const alreadyDone = glob.sync(`processed_data/${prop.fps}fps/${dirName}/`, { cwd: dirPath, root: dirPath });
+  console.log(alreadyDone);
 
   if (alreadyDone.length === 0) {
     const dirs = glob.sync(`processed_data/${prop.fps}fps/*.csv`, { cwd: dirPath, root: dirPath });

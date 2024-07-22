@@ -24,16 +24,22 @@ def split_csv_by_frame(input_file, output_dir, frames_per_file):
     max_frame = df['frame'].max()
 
     index_data = []
+    all_tags = set()  # Set per memorizzare i tag_id unici
 
     for start_frame in range(min_frame, max_frame + 1, frames_per_file):
         end_frame = min(start_frame + frames_per_file - 1, max_frame)
         subset_df = df[(df['frame'] >= start_frame) & (df['frame'] <= end_frame)]
         output_file = os.path.join(output_dir, f'frames_{start_frame}_{end_frame}.csv')
         subset_df.to_csv(output_file, index=False)
+        
+        # Aggiorna il set con i tag_id unici
+        all_tags.update(subset_df['tag_id'].unique())
+        
         index_data.append({
-            'start_frame': int(start_frame), 
-            'end_frame': int(end_frame), 
-            'file': output_file
+            'start_frame': int(start_frame),
+            'end_frame': int(end_frame),
+            'file': output_file,
+            'tags': subset_df['tag_id'].unique().tolist()  # Aggiungi i tag_id unici per questo file
         })
 
     index_file = os.path.join(output_dir, 'index.json')
