@@ -17,7 +17,7 @@ function getRandomColor(main=true) {
 }
 
 function Chart() {
-  const { currentFile, envObjFile, index, currentTags } = useDashboard();
+  const { currentFile, envObjFile, index, currentTags,isDetailsOn,setIsDetailsOn } = useDashboard();
   const { isOnline } = useMode();
   const {
     currentFileData,
@@ -236,7 +236,7 @@ function Chart() {
     <div className="w-full h-full" ref={ref}>
       <Plot
         onClick={(data) => {
-          console.log(data);
+          
           if (data.points.length > 0) {
             const point = data.points[0];
             const tag = point.data.name.split(" ")[0];
@@ -248,7 +248,7 @@ function Chart() {
                 break;
               }
             }
-            
+          setIsDetailsOn(true);
             
           }
         }

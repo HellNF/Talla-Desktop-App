@@ -11,6 +11,7 @@ export const FileHandlerProvider = ({ children }) => {
   const [fpsMode, setFpsMode] = useState(null);
   const [index,setIndex] = useState(null);
   const [currentTags,setCurrentTags] = useState([]);
+  const [isDetailsOn, setIsDetailsOn] = useState(false);
   const selectEnvObjFile = (file) => {
     setEnvObjFile(file);
   };
@@ -19,7 +20,7 @@ export const FileHandlerProvider = ({ children }) => {
   };
 
   return (
-    <FileHandlerContext.Provider value={{ currentFile, selectFile, envObjFile,selectEnvObjFile,isSet,setIsSet,fpsMode,setFpsMode,index,setIndex,currentTags,setCurrentTags }}>
+    <FileHandlerContext.Provider value={{ currentFile, selectFile, envObjFile,selectEnvObjFile,isSet,setIsSet,fpsMode,setFpsMode,index,setIndex,currentTags,setCurrentTags,isDetailsOn, setIsDetailsOn }}>
       {children}
     </FileHandlerContext.Provider>
   );

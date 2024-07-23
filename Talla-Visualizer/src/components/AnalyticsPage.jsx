@@ -13,6 +13,7 @@ import {
   ChevronDoubleRightIcon,
   ArrowsPointingOutIcon,
   ArrowsPointingInIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/solid";
 import {
   Table,
@@ -51,8 +52,10 @@ export default function AnalyticsPage() {
     currentTags,
     setCurrentTags,
     fpsMode,
+    isDetailsOn,
+    setIsDetailsOn,
   } = useDashboard();
-  const [isDetailsOn, setIsDetailsOn] = useState(false);
+  const [isTagsChanged, setIsTagsChanged] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { shapes, setShapes, speedfactor, setSpeedFactor } = useViewSettings();
@@ -69,10 +72,26 @@ export default function AnalyticsPage() {
   const [selectedTags, setSelectedTags] = useState(() => {
     const initialSelectedTags = {};
     index.tags.forEach((obj) => {
-      currentTags.includes(`${obj.tag_id}`)? initialSelectedTags[obj.tag_id] = true : initialSelectedTags[obj.tag_id] = false;    
+      currentTags.includes(`${obj.tag_id}`)
+        ? (initialSelectedTags[obj.tag_id] = true)
+        : (initialSelectedTags[obj.tag_id] = false);
     });
     return initialSelectedTags;
   });
+  useEffect(() => {
+    if(selectedTags!==null){
+      let newTags = Object.keys(selectedTags).filter((tag)=>selectedTags[tag]);
+      for(let tag of currentTags){
+        if(!newTags.includes(tag)){
+          setIsTagsChanged(true);
+          break
+        }
+        else{
+          setIsTagsChanged(false);
+      }
+    }
+  }
+  }, [selectedTags]);
 
   const handleSelectAll = () => {
     const updatedTags = {};
@@ -157,19 +176,15 @@ export default function AnalyticsPage() {
   return (
     <div className="w-full h-full pt-20 flex flex-col items-center px-2">
       <div className="w-full m-2 flex flex-row justify-between mx-4 items-center">
-        <div className="font-medium text-sm md:text-base xl:text-lg ">
+        <div className="font-medium text-sm md:text-base xl:text-lg flex  space-x-4">
           <h1>
             {currentFile !== ""
               ? "..." + currentFile.split("TallaWorkspace")[1]
               : ""}
           </h1>
+          <h1>{`${fpsMode}fps`}</h1>
         </div>
         <div className="flex flex-row items-center space-x-5">
-          <TreeCampaignSelect
-            handleTreeSelectChange={handleTreeSelectChange}
-            deep={true}
-            type="elements"
-          />
           <button
             type="button"
             className="rounded-lg bg-secondary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-details-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
@@ -203,6 +218,7 @@ export default function AnalyticsPage() {
             backdrop="blur"
             isOpen={isOpen}
             onOpenChange={onOpenChange}
+            isDismissable={false}
             placement="center"
           >
             <ModalContent className="bg-gray-400 rounded-lg h-2/3 w-1/3 text-dirty-white hide-scrollbar overflow-scroll">
@@ -212,6 +228,16 @@ export default function AnalyticsPage() {
                     <h1 className="font-semibold text-lg">Settings</h1>
                   </ModalHeader>
                   <ModalBody>
+                    <div>
+                      <label>Select the env elemetent file:</label>
+                      <TreeCampaignSelect
+                        className="text-black"
+                        handleTreeSelectChange={handleTreeSelectChange}
+                        deep={true}
+                        type="elements"
+                      />
+                    </div>
+                    <hr orientation="horizontal" className="py-2" />
                     <h1>Shapes</h1>
                     <Table>
                       <TableHeader>
@@ -232,10 +258,13 @@ export default function AnalyticsPage() {
                                   <PopoverColorPicker
                                     color={shape.fillcolor}
                                     onChange={(c) => {
+                                      console.log(c);
                                       let newShapes = [...shapes];
-                                      newShapes[
-                                        index
-                                      ].fillcolor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+                                      newShapes[index].fillcolor = `rgba(${
+                                        c.r
+                                      },${c.g},${c.b},${
+                                        isNaN(c.a) ? 0.6 : c.a
+                                      })`;
                                       setShapes(newShapes);
                                     }}
                                   ></PopoverColorPicker>
@@ -244,10 +273,12 @@ export default function AnalyticsPage() {
                                   <PopoverColorPicker
                                     color={shape.line.color}
                                     onChange={(c) => {
+                                      console.log(c);
+
                                       let newShapes = [...shapes];
-                                      newShapes[
-                                        index
-                                      ].line.color = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+                                      newShapes[index].line.color = `rgba(${
+                                        c.r
+                                      },${c.g},${c.b},${isNaN(c.a) ? 1 : c.a})`;
                                       setShapes(newShapes);
                                     }}
                                   ></PopoverColorPicker>
@@ -298,7 +329,9 @@ export default function AnalyticsPage() {
                 } flex flex-col items-center shadow`}
               >
                 {index.fileIndex === undefined ? (
-                  <Spinner></Spinner>
+                  <div className="flex items-center justify-center w-full h-full">
+                    <Spinner></Spinner>
+                  </div>
                 ) : (
                   <>
                     <button
@@ -394,16 +427,27 @@ export default function AnalyticsPage() {
               </SplitterPanel>
               <SplitterPanel
                 size={20}
-                className="overflow-y-scroll shadow hide-scrollbar flex flex-col items-center"
+                className="overflow-y-scroll shadow hide-scrollbar flex flex-col items-center "
               >
-                <div className="p-2 w-full">
+                <div className="px-4 py-2 w-full font-semibold">
                   <h1>Timelines</h1>
                 </div>
-                <div className="w-full flex flex-col items-center">
+                <div className="flex flex-row items-center justify-between px-4 py-2 w-full">
+                  <div className="flex flex-row items-center text-details-blue space-x-5 font-semibold">
+                    <button type="button" className="hover:text-details-light-blue" onClick={handleSelectAll}>Select all</button>
+                    <button type="button" className="hover:text-details-light-blue" onClick={handleDeselectAll}>Deselect all</button>
+                  </div>
+                  <button type="button" className={`px-3 py-2 text-white bg-details-blue font-semibold rounded-md hover:scale-105 ${isTagsChanged?"":"hidden"}`}
+                    onClick={()=>{
+                      setCurrentTags(Object.keys(selectedTags).filter((tag)=>selectedTags[tag]));
+                      setIsSet(true);
+                    }}>Apply changes</button>
+                </div>
+                <div className="w-full flex flex-col items-center space-y-2">
                   {index.tags && index?.fileIndex ? (
                     index.tags.map((item) => {
                       return (
-                        <div className="flex flex-row items-center space-x-4 w-full px-3">
+                        <div key={item.tag_id} className="flex flex-row items-center space-x-4 w-full px-3 ">
                           <label
                             key={item.tag_id}
                             className="flex items-center  justify-center "
@@ -428,7 +472,7 @@ export default function AnalyticsPage() {
                       );
                     })
                   ) : (
-                    <div>
+                    <div className="flex items-center justify-center  w-full h-full">
                       <Spinner></Spinner>
                     </div>
                   )}
@@ -440,12 +484,13 @@ export default function AnalyticsPage() {
             id="details"
             size={20}
             minSize={1}
-            className={`overflow-y-scroll shadow hide-scrollbar ${
+            className={`overflow-y-scroll shadow h-full hide-scrollbar ${
               isDetailsOn ? "" : "hidden"
             }`}
           >
-            <div className="p-2">
+            <div className="p-2 flex flex-row justify-between">
               <h1>Details</h1>
+              <button type="button" className="p-2 shadow-sm rounded-full" onClick={()=>setIsDetailsOn(false)}><XMarkIcon className="h-6 w-6"></XMarkIcon></button>
             </div>
 
             <div className="flex flex-col space-y-3 items-center justify-center m-3 w-full max-w-xl">

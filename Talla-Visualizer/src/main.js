@@ -122,7 +122,16 @@ ipcMain.handle('ProcessCSV', async (event, prop) => {
   const data = fs.readFileSync(dirName, 'utf8');
   return JSON.parse(data);
 });
-
+ipcMain.handle("AlreadyProcessed", async (event, file) => {
+  
+  const dirPath =  path.join(path.dirname(file), "processed_data");
+  const dirs = glob.sync(`*/`, { cwd: dirPath, root: dirPath });
+  
+  const processed = dirs.map((dir) => {
+     return dir.split('fps')[0];
+  })
+  return processed;
+})
 ipcMain.handle('LoadCSV', async (event, prop) => {
   const dirPath = path.dirname(prop.file);
   let dirName = prop.files.join('_');

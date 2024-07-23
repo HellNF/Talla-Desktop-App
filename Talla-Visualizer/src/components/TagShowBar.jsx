@@ -21,7 +21,7 @@ const TagShowBar = ({ tag}) => {
         return (
           file.tags.includes(tag) ?(<div
             key={file.start_frame}
-            className="absolute top-0 h-full  rounded"
+            className="absolute top-0 h-full  "
             style={{
               left: `${getTagPosition(file.start_frame)}%`,
               width: `${getTagPosition(file.end_frame) - getTagPosition(file.start_frame)}%`,

@@ -20,7 +20,7 @@ export default function SpeedDropDown() {
         </Button>
       </DropdownTrigger>
       <DropdownMenu 
-      className="bg-gray-100/60 rounded-md px-2 "
+      className="bg-gray-200     rounded-md px-2 "
         aria-label="Single selection example"
         variant="flat"
         disallowEmptySelection
