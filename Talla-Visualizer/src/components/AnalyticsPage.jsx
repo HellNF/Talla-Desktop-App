@@ -427,7 +427,7 @@ export default function AnalyticsPage() {
               </SplitterPanel>
               <SplitterPanel
                 size={20}
-                className="overflow-y-scroll shadow hide-scrollbar flex flex-col items-center "
+                className="overflow-y-scroll shadow hide-scrollbar flex flex-col items-center h-full"
               >
                 <div className="px-4 py-2 w-full font-semibold">
                   <h1>Timelines</h1>
