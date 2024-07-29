@@ -9,3 +9,19 @@ html {
 .hide-scrollbar::-webkit-scrollbar {
     display: none;  /* Safari e Chrome */
   }
+
+  @keyframes blink {
+    0% {
+      color: red;
+    }
+    50% {
+      color: transparent;
+    }
+    100% {
+      color: red;
+    }
+  }
+  
+  .blinking-icon {
+    animation: blink 1s infinite;
+  }

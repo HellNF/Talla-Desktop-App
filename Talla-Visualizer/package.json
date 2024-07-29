@@ -26,6 +26,7 @@
     "@vercel/webpack-asset-relocator-loader": "^1.7.3",
     "autoprefixer": "^10.4.19",
     "babel-loader": "^9.1.3",
+    "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^6.11.0",
     "electron": "31.1.0",
     "electron-devtools-installer": "^3.2.0",
@@ -64,5 +65,18 @@
     "react-plotly.js": "^2.6.0",
     "react-resize-detector": "^11.0.1",
     "react-router-dom": "^6.23.1"
+  },
+  "build": {
+    "asar": false,
+    "files": [
+      "scripts/*"
+    ]
+    ,
+    "extraFiles": [
+    {
+      "from": "src/scripts",
+      "to": "resources/app.asar.unpacked/src/scripts"
+    }
+  ]
   }
 }

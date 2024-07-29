@@ -1,11 +1,24 @@
+const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin'); // Add this line
 module.exports = {
-  /**
-   * This is the main entry point for your application, it's the first file
-   * that runs in the main process.
-   */
   entry: './src/main.js',
-  // Put your normal webpack config below here
+  // output: {
+  //   path: path.resolve(__dirname, '.webpack/main'),
+  //   filename: 'main.js',
+  // },
+  target: 'electron-main',
+  node: {
+    __dirname: false,
+    __filename: false,
+  },
   module: {
     rules: require('./webpack.rules'),
   },
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'src/preload.js', to: 'preload.js' },
+      ],
+    }),
+  ],
 };

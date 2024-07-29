@@ -5,6 +5,7 @@ import { Checkbox } from "primereact/checkbox";
 import SpeedDropDown from "./SpeedDropDown.jsx";
 import Spinner from "./Spinner.jsx";
 import TagShowBar from "./TagShowBar.jsx";
+import RecordingButton from "./RecordingButton.jsx";
 import {
   AdjustmentsVerticalIcon,
   PlayIcon,
@@ -68,7 +69,7 @@ export default function AnalyticsPage() {
     currentFileData,
     setcurrentFileData,
   } = useGraph();
-
+ 
   const [selectedTags, setSelectedTags] = useState(() => {
     const initialSelectedTags = {};
     index.tags.forEach((obj) => {
@@ -79,18 +80,19 @@ export default function AnalyticsPage() {
     return initialSelectedTags;
   });
   useEffect(() => {
-    if(selectedTags!==null){
-      let newTags = Object.keys(selectedTags).filter((tag)=>selectedTags[tag]);
-      for(let tag of currentTags){
-        if(!newTags.includes(tag)){
+    if (selectedTags !== null) {
+      let newTags = Object.keys(selectedTags).filter(
+        (tag) => selectedTags[tag]
+      );
+      for (let tag of currentTags) {
+        if (!newTags.includes(tag)) {
           setIsTagsChanged(true);
-          break
-        }
-        else{
+          break;
+        } else {
           setIsTagsChanged(false);
+        }
       }
     }
-  }
   }, [selectedTags]);
 
   const handleSelectAll = () => {
@@ -347,6 +349,7 @@ export default function AnalyticsPage() {
                         <ArrowsPointingOutIcon className="h-6 w-6"></ArrowsPointingOutIcon>
                       )}
                     </button>
+                    <RecordingButton></RecordingButton>
                     <div
                       className={
                         isFullScreen
@@ -434,20 +437,46 @@ export default function AnalyticsPage() {
                 </div>
                 <div className="flex flex-row items-center justify-between px-4 py-2 w-full">
                   <div className="flex flex-row items-center text-details-blue space-x-5 font-semibold">
-                    <button type="button" className="hover:text-details-light-blue" onClick={handleSelectAll}>Select all</button>
-                    <button type="button" className="hover:text-details-light-blue" onClick={handleDeselectAll}>Deselect all</button>
+                    <button
+                      type="button"
+                      className="hover:text-details-light-blue"
+                      onClick={handleSelectAll}
+                    >
+                      Select all
+                    </button>
+                    <button
+                      type="button"
+                      className="hover:text-details-light-blue"
+                      onClick={handleDeselectAll}
+                    >
+                      Deselect all
+                    </button>
                   </div>
-                  <button type="button" className={`px-3 py-2 text-white bg-details-blue font-semibold rounded-md hover:scale-105 ${isTagsChanged?"":"hidden"}`}
-                    onClick={()=>{
-                      setCurrentTags(Object.keys(selectedTags).filter((tag)=>selectedTags[tag]));
+                  <button
+                    type="button"
+                    className={`px-3 py-2 text-white bg-details-blue font-semibold rounded-md hover:scale-105 ${
+                      isTagsChanged ? "" : "hidden"
+                    }`}
+                    onClick={() => {
+                      setCurrentTags(
+                        Object.keys(selectedTags).filter(
+                          (tag) => selectedTags[tag]
+                        )
+                      );
                       setIsSet(true);
-                    }}>Apply changes</button>
+                    }}
+                  >
+                    Apply changes
+                  </button>
                 </div>
                 <div className="w-full flex flex-col items-center space-y-2">
                   {index.tags && index?.fileIndex ? (
                     index.tags.map((item) => {
                       return (
-                        <div key={item.tag_id} className="flex flex-row items-center space-x-4 w-full px-3 ">
+                        <div
+                          key={item.tag_id}
+                          className="flex flex-row items-center space-x-4 w-full px-3 "
+                        >
                           <label
                             key={item.tag_id}
                             className="flex items-center  justify-center "
@@ -490,7 +519,13 @@ export default function AnalyticsPage() {
           >
             <div className="p-2 flex flex-row justify-between">
               <h1>Details</h1>
-              <button type="button" className="p-2 shadow-sm rounded-full" onClick={()=>setIsDetailsOn(false)}><XMarkIcon className="h-6 w-6"></XMarkIcon></button>
+              <button
+                type="button"
+                className="p-2 shadow-sm rounded-full"
+                onClick={() => setIsDetailsOn(false)}
+              >
+                <XMarkIcon className="h-6 w-6"></XMarkIcon>
+              </button>
             </div>
 
             <div className="flex flex-col space-y-3 items-center justify-center m-3 w-full max-w-xl">

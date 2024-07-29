@@ -1,8 +1,8 @@
-const { app, BrowserWindow, session, ipcMain } = require('electron');
-const path = require('node:path');
-const fs = require('node:fs');
-const util = require('node:util');
-const os = require('node:os');
+const { app, BrowserWindow, ipcMain, desktopCapturer } = require('electron');
+const path = require('path');
+const fs = require('fs');
+const util = require('util');
+const os = require('os');
 const createContextMenu = require('./context-menu.js');
 const exec = util.promisify(require('child_process').exec);
 const csvtojson = require('csvtojson');
@@ -10,29 +10,29 @@ const installExtension = require('electron-devtools-installer').default;
 const { REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
 const { glob } = require('glob');
 
-// Definisci il percorso della directory di lavoro
 const documentsDir = path.join(os.homedir(), 'Documents');
 const workspaceDir = path.join(documentsDir, 'TallaWorkspace');
+let mainWindow = null;
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
+
 const isDev = process.env.NODE_ENV === 'development';
+
 const createWindow = () => {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(app.getAppPath(), 'src', 'preload.js'),
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
-      sandbox: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
     },
     autoHideMenuBar: false,
   });
-
-  // and load the index.html of the app.
+  console.log(path.join(__dirname, 'preload.js'))
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   createContextMenu(mainWindow);
   if (isDev) {
@@ -47,21 +47,14 @@ const createWindow = () => {
       });
     });
   }
-  // Open the DevTools.
-  //mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 };
 
-// In production, load the react devtools extension
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   installExtension(REACT_DEVELOPER_TOOLS)
     .then((name) => console.log(`Added Extension:  ${name}`))
     .catch((err) => console.log('An error occurred: ', err));
 
-  // Crea la directory di lavoro se non esiste
   if (!fs.existsSync(workspaceDir)) {
     fs.mkdirSync(workspaceDir, { recursive: true });
     console.log(`Directory ${workspaceDir} created.`);
@@ -71,8 +64,6 @@ app.whenReady().then(() => {
 
   createWindow();
 
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
@@ -80,9 +71,6 @@ app.whenReady().then(() => {
   });
 });
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -97,7 +85,6 @@ ipcMain.handle('tree:element:getFilesAndFolders', () => {
   return searchWorkspaceDirectory(workspaceDir, "**/elements/*.json");
 });
 
-// Processing dei dati
 ipcMain.handle('ProcessCSV', async (event, prop) => {
   const dirPath = path.dirname(prop.file);
   const dirs = glob.sync(`processed_data/${prop.fps}fps/`, { cwd: dirPath, root: dirPath });
@@ -114,7 +101,7 @@ ipcMain.handle('ProcessCSV', async (event, prop) => {
       console.log(`stdout: ${stdout}`);
     } catch (error) {
       console.error(`Error executing script: ${error.message}`);
-      throw error; // Rilancia l'errore per gestirlo nel contesto del chiamante
+      throw error;
     }
   }
 
@@ -122,20 +109,21 @@ ipcMain.handle('ProcessCSV', async (event, prop) => {
   const data = fs.readFileSync(dirName, 'utf8');
   return JSON.parse(data);
 });
+
 ipcMain.handle("AlreadyProcessed", async (event, file) => {
-  
-  const dirPath =  path.join(path.dirname(file), "processed_data");
+  const dirPath = path.join(path.dirname(file), "processed_data");
   const dirs = glob.sync(`*/`, { cwd: dirPath, root: dirPath });
-  
+
   const processed = dirs.map((dir) => {
-     return dir.split('fps')[0];
-  })
+    return dir.split('fps')[0];
+  });
   return processed;
-})
+});
+
 ipcMain.handle('LoadCSV', async (event, prop) => {
   const dirPath = path.dirname(prop.file);
   let dirName = prop.files.join('_');
-  
+
   const alreadyDone = glob.sync(`processed_data/${prop.fps}fps/${dirName}/`, { cwd: dirPath, root: dirPath });
   console.log(alreadyDone);
 
@@ -168,13 +156,11 @@ ipcMain.handle('LoadCSV', async (event, prop) => {
   }
 
   const indexFile = path.join(dirPath, "processed_data", `${prop.fps}fps`, dirName, 'index.json');
-  
+
   const data = fs.readFileSync(indexFile, 'utf8');
-  // console.log(data);
   return JSON.parse(data);
-  
 });
-// Handler per leggere il file CSV e convertirlo in JSON
+
 ipcMain.handle('LoadCSV:readFile', async (event, file) => {
   try {
     const csvFilePath = path.resolve(file);
@@ -186,14 +172,14 @@ ipcMain.handle('LoadCSV:readFile', async (event, file) => {
       }
       acc[frame].push(obj);
       return acc;
-    },{});
+    }, {});
     return groupedData;
   } catch (error) {
     console.error('Error reading and converting CSV:', error);
     throw error;
   }
 });
-// Ottenimento degli Elementi ambientali per il grafico
+
 ipcMain.handle('graph:getElementsData', (event, filePath) => {
   const data = fs.readFileSync(filePath, 'utf8');
   const jsData = JSON.parse(data);
@@ -237,17 +223,31 @@ const searchWorkspaceDirectory = (workspaceDir, pattern) => {
       const campaign = {
         id: filePath,
         name: file,
-      }
+      };
       campaignList.push(campaign);
-    })
+    });
 
     result.push({
       _id: dirPath,
       name: dir,
       campaignList: campaignList,
-    })
+    });
 
   });
 
   return result;
 };
+
+ipcMain.handle('get-screen-sources', async () => {
+  const sources = await desktopCapturer.getSources({ types: ['window', 'screen'] });
+  console.log(sources);
+  return sources;
+});
+
+ipcMain.handle('start-recording', async (event, sourceId) => {
+  mainWindow.webContents.send('start-recording', sourceId);
+});
+
+ipcMain.handle('stop-recording', async (event) => {
+  mainWindow.webContents.send('stop-recording');
+});

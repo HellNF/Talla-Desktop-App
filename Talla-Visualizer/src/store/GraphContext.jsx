@@ -11,12 +11,14 @@ export const GraphProvider = ({ children }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
   const [positionDetails, setPositionDetails] = useState(null);
   const [play, setPlay] = useState(false);
+  const [xRange, setXRange] = useState([-50,50]);
+  const [yRange, setYRange] = useState([-10,30]);
   
 
   
 
   return (
-    <GraphContext.Provider value={{ currentFileData,setCurrentFileData,envObjFileData,setEnvObjFileData,currentFrame, setCurrentFrame,play, setPlay, currentFileIndexLoaded, setCurrentFileIndexLoaded,positionDetails, setPositionDetails}}>
+    <GraphContext.Provider value={{ currentFileData,setCurrentFileData,envObjFileData,setEnvObjFileData,currentFrame, setCurrentFrame,play, setPlay, currentFileIndexLoaded, setCurrentFileIndexLoaded,positionDetails, setPositionDetails,xRange, setXRange,yRange, setYRange}}>
       {children}
     </GraphContext.Provider>
   );
