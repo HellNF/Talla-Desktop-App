@@ -1,9 +1,10 @@
 import Navbar from "../components/Navbar.jsx";
-import React from "react";
+import React, { useEffect } from "react";
 import AnalyticsPage from "../components/AnalyticsPage.jsx";
 import TallaNavbar from "../components/TallaNavbar.jsx";
 import PopoverColorPicker from "../components/PopoverColorPicker.jsx";
 function Home() {
+  
   return (
     <div>
       

@@ -3,14 +3,17 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 module.exports = {
   packagerConfig: {
-    asar: true,
+    asar: true ,
+    extraResource: [
+      "./src/scripts",
+    ],
   },
   rebuildConfig: {},
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
       config: {},
-      platforms: ["win32","win64"],
+      platforms: ["win64","win32"],
     },
     {
       name: '@electron-forge/maker-zip',
@@ -25,6 +28,7 @@ module.exports = {
       config: {},
     },
   ],
+  
   plugins: [
     {
       name: '@electron-forge/plugin-auto-unpack-natives',

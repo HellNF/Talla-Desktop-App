@@ -29,6 +29,7 @@
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^6.11.0",
     "electron": "31.1.0",
+    "electron-builder": "^24.13.3",
     "electron-devtools-installer": "^3.2.0",
     "node-loader": "^2.0.0",
     "postcss": "^8.4.39",
@@ -64,19 +65,8 @@
     "react-dropzone": "^14.2.3",
     "react-plotly.js": "^2.6.0",
     "react-resize-detector": "^11.0.1",
-    "react-router-dom": "^6.23.1"
-  },
-  "build": {
-    "asar": false,
-    "files": [
-      "scripts/*"
-    ]
-    ,
-    "extraFiles": [
-    {
-      "from": "src/scripts",
-      "to": "resources/app.asar.unpacked/src/scripts"
-    }
-  ]
+    "react-router-dom": "^6.23.1",
+    "tailwindcss": "^3.4.4"
   }
+  
 }

@@ -23,6 +23,8 @@ lib-cov
 coverage
 *.lcov
 
+
+
 # nyc test coverage
 .nyc_output
 
@@ -33,6 +35,8 @@ coverage
 build/Release
 
 # Dependency directories
+out/
+dist/
 node_modules/
 jspm_packages/
 

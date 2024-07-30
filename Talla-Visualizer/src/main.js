@@ -90,7 +90,12 @@ ipcMain.handle('ProcessCSV', async (event, prop) => {
   const dirs = glob.sync(`processed_data/${prop.fps}fps/`, { cwd: dirPath, root: dirPath });
 
   if (dirs.length === 0) {
-    const scriptPath = path.join(app.getAppPath(), 'src', 'scripts', 'processCsvThroughFps.py');
+    let scriptPath;
+    if (app.isPackaged) {
+      scriptPath = path.join(process.resourcesPath,'scripts', 'processCsvThroughFps.py');
+    } else {
+      scriptPath = path.join(__dirname, 'src', 'scripts', 'processCsvThroughFps.py');
+    }
     const command = `python "${scriptPath}" "${prop.file}" ${prop.fps}`;
 
     try {
@@ -141,7 +146,13 @@ ipcMain.handle('LoadCSV', async (event, prop) => {
 
     const framesPerFile = prop.fps == 5 ? 2000 : prop.fps == 10 ? 1000 : 500;
     const baseDir = path.join(dirPath, "processed_data", `${prop.fps}fps`);
-    const command = `python "${path.join(app.getAppPath(), 'src', 'scripts', 'mergeCsvAndSplit.py')}" --input_files "${files.join('" "')}" --base_dir "${baseDir}" --frames_per_file ${framesPerFile} --output_dir "${dirName}"`;
+    let scriptPath;
+    if (app.isPackaged) {
+      scriptPath = path.join(process.resourcesPath, 'scripts', 'mergeCsvAndSplit.py');
+    } else {
+      scriptPath = path.join(__dirname, 'src', 'scripts', 'mergeCsvAndSplit.py');
+    }
+    const command = `python "${scriptPath}" --input_files "${files.join('" "')}" --base_dir "${baseDir}" --frames_per_file ${framesPerFile} --output_dir "${dirName}"`;
 
     try {
       const { stdout, stderr } = await exec(command);
@@ -251,3 +262,4 @@ ipcMain.handle('start-recording', async (event, sourceId) => {
 ipcMain.handle('stop-recording', async (event) => {
   mainWindow.webContents.send('stop-recording');
 });
+
