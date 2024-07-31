@@ -59,7 +59,7 @@ export default function AnalyticsPage() {
   const [isTagsChanged, setIsTagsChanged] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { shapes, setShapes, speedfactor, setSpeedFactor } = useViewSettings();
+  const { shapes, setShapes, speedfactor, setSpeedFactor,tagSetting,setTagSetting } = useViewSettings();
   const {
     currentFrame,
     setCurrentFrame,
@@ -67,7 +67,7 @@ export default function AnalyticsPage() {
     setPlay,
     positionDetails,
     currentFileData,
-    setcurrentFileData,
+    setCurrentFileData,
   } = useGraph();
  
   const [selectedTags, setSelectedTags] = useState(() => {
@@ -79,21 +79,18 @@ export default function AnalyticsPage() {
     });
     return initialSelectedTags;
   });
+
+  
+
   useEffect(() => {
     if (selectedTags !== null) {
-      let newTags = Object.keys(selectedTags).filter(
+      const newTags = Object.keys(selectedTags).filter(
         (tag) => selectedTags[tag]
       );
-      for (let tag of currentTags) {
-        if (!newTags.includes(tag)) {
-          setIsTagsChanged(true);
-          break;
-        } else {
-          setIsTagsChanged(false);
-        }
-      }
+      const isChanged = newTags.length !== currentTags.length || newTags.some(tag => !currentTags.includes(tag));
+      setIsTagsChanged(isChanged);
     }
-  }, [selectedTags]);
+  }, [selectedTags, currentTags]);
 
   const handleSelectAll = () => {
     const updatedTags = {};
@@ -195,7 +192,7 @@ export default function AnalyticsPage() {
               setIsSet(false);
               setIndex(null);
               setCurrentTags([]);
-              setcurrentFileData([]);
+              setCurrentFileData([]);
             }}
           >
             Change campaign
@@ -223,7 +220,7 @@ export default function AnalyticsPage() {
             isDismissable={false}
             placement="center"
           >
-            <ModalContent className="bg-gray-400 rounded-lg h-2/3 w-1/3 text-dirty-white hide-scrollbar overflow-scroll">
+            <ModalContent className="bg-secondary rounded-lg h-2/3 w-1/2 text-dirty-white hide-scrollbar overflow-scroll">
               {(onClose) => (
                 <>
                   <ModalHeader className="flex flex-col gap-1">
@@ -231,7 +228,7 @@ export default function AnalyticsPage() {
                   </ModalHeader>
                   <ModalBody>
                     <div>
-                      <label>Select the env elemetent file:</label>
+                      <label>Select the env element file:</label>
                       <TreeCampaignSelect
                         className="text-black"
                         handleTreeSelectChange={handleTreeSelectChange}
@@ -301,7 +298,50 @@ export default function AnalyticsPage() {
                       </TableBody>
                     </Table>
                     <hr orientation="horizontal" className="py-2" />
-                    <h1>Configs</h1>
+                    <h1>Tags</h1>
+                    <Table>
+                      <TableHeader>
+                        <TableColumn align="center">Tag</TableColumn>
+                        <TableColumn align="center">Main color</TableColumn>
+                        <TableColumn align="center">Footprint color</TableColumn>
+                      </TableHeader>
+                      <TableBody>
+                        {Object.keys(tagSetting).map((tag) => {
+                          return (
+                            <TableRow key={tag} className=" items-center">
+                              <TableCell>
+                                <label>{tag}</label>
+                              </TableCell>
+                              <TableCell>
+                                <PopoverColorPicker
+                                  color={tagSetting[tag].color.main}
+                                  onChange={(c) => {
+                                    let newTagSetting = { ...tagSetting };
+                                    newTagSetting[tag].color.main = `rgba(${
+                                      c.r
+                                    },${c.g},${c.b},${isNaN(c.a) ? 1 : c.a})`;
+                                    setTagSetting(newTagSetting);
+                                  }}
+                                ></PopoverColorPicker>
+                              </TableCell>
+                              <TableCell>
+                                <PopoverColorPicker
+                                  color={tagSetting[tag].color.footprint}
+                                  onChange={(c) => {
+                                    let newTagSetting = { ...tagSetting };
+                                    newTagSetting[tag].color.footprint = `rgba(${
+                                      c.r
+                                    },${c.g},${c.b},${isNaN(c.a) ? 1 : c.a})`;
+                                    setTagSetting(newTagSetting);
+                                  }}
+                                ></PopoverColorPicker>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        }
+                        )}
+                      </TableBody>
+                    </Table>
                   </ModalBody>
                   <ModalFooter>
                     <Button variant="light" onPress={onClose}>
@@ -464,6 +504,7 @@ export default function AnalyticsPage() {
                         )
                       );
                       setIsSet(true);
+                      setIndex({ ...index, fileIndex: undefined });
                     }}
                   >
                     Apply changes

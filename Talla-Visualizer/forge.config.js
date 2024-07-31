@@ -6,7 +6,9 @@ module.exports = {
     asar: true ,
     extraResource: [
       "./src/scripts",
+      "./src/icon"
     ],
+    icon: "./src/icon",
   },
   rebuildConfig: {},
   makers: [

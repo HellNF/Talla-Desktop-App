@@ -24,6 +24,7 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    icon: app.isPackaged?path.join(process.resourcesPath,"icon", 'file.ico') : path.join(app.getAppPath(),"src","icon", 'file.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -32,6 +33,7 @@ const createWindow = () => {
     },
     autoHideMenuBar: false,
   });
+  mainWindow.setTitle('Talla');
   console.log(path.join(__dirname, 'preload.js'))
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   createContextMenu(mainWindow);
@@ -94,7 +96,7 @@ ipcMain.handle('ProcessCSV', async (event, prop) => {
     if (app.isPackaged) {
       scriptPath = path.join(process.resourcesPath,'scripts', 'processCsvThroughFps.py');
     } else {
-      scriptPath = path.join(__dirname, 'src', 'scripts', 'processCsvThroughFps.py');
+      scriptPath = path.join(app.getAppPath(), 'src', 'scripts', 'processCsvThroughFps.py');
     }
     const command = `python "${scriptPath}" "${prop.file}" ${prop.fps}`;
 
@@ -150,7 +152,7 @@ ipcMain.handle('LoadCSV', async (event, prop) => {
     if (app.isPackaged) {
       scriptPath = path.join(process.resourcesPath, 'scripts', 'mergeCsvAndSplit.py');
     } else {
-      scriptPath = path.join(__dirname, 'src', 'scripts', 'mergeCsvAndSplit.py');
+      scriptPath = path.join(app.getAppPath(), 'src', 'scripts', 'mergeCsvAndSplit.py');
     }
     const command = `python "${scriptPath}" --input_files "${files.join('" "')}" --base_dir "${baseDir}" --frames_per_file ${framesPerFile} --output_dir "${dirName}"`;
 

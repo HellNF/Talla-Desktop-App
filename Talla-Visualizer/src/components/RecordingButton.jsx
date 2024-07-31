@@ -92,7 +92,14 @@ export default function RecordingButton() {
         onClick={async() => {
           if (!isRecording) {
             const sources = await window.electronAPI.invoke('get-screen-sources');
-            const screenSource = sources.find(source => source.name === 'Schermo 1');
+            console.log('Sources: ', sources);
+            let screenSource;
+            if(sources.find(source => source.name === 'Talla Visualizer')){
+              screenSource = sources.find(source => source.name === 'Talla Visualizer');
+            } else {
+              screenSource = sources.find(source => source.name === 'Schermo 1')
+            }
+            
             if (screenSource) {
               await window.electronAPI.invoke('start-recording', screenSource.id);
             }
