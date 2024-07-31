@@ -98,7 +98,12 @@ ipcMain.handle('ProcessCSV', async (event, prop) => {
     } else {
       scriptPath = path.join(app.getAppPath(), 'src', 'scripts', 'processCsvThroughFps.py');
     }
-    const command = `python "${scriptPath}" "${prop.file}" ${prop.fps}`;
+    let command;
+    if (process.platform === 'win32') {
+      command = `python "${scriptPath}" "${prop.file}" ${prop.fps}`;
+    } else {
+      command = `python3 "${scriptPath}" "${prop.file}" ${prop.fps}`;
+    }
 
     try {
       const { stdout, stderr } = await exec(command);
@@ -154,7 +159,13 @@ ipcMain.handle('LoadCSV', async (event, prop) => {
     } else {
       scriptPath = path.join(app.getAppPath(), 'src', 'scripts', 'mergeCsvAndSplit.py');
     }
-    const command = `python "${scriptPath}" --input_files "${files.join('" "')}" --base_dir "${baseDir}" --frames_per_file ${framesPerFile} --output_dir "${dirName}"`;
+    
+    let command;
+    if (process.platform === 'win32') {
+      command = `python "${scriptPath}" --input_files "${files.join('" "')}" --base_dir "${baseDir}" --frames_per_file ${framesPerFile} --output_dir "${dirName}"`;
+    } else {
+      command = `python3 "${scriptPath}" --input_files "${files.join('" "')}" --base_dir "${baseDir}" --frames_per_file ${framesPerFile} --output_dir "${dirName}"`;
+    }
 
     try {
       const { stdout, stderr } = await exec(command);

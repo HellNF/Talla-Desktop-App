@@ -96,8 +96,13 @@ export default function RecordingButton() {
             let screenSource;
             if(sources.find(source => source.name === 'Talla Visualizer')){
               screenSource = sources.find(source => source.name === 'Talla Visualizer');
-            } else {
+            } else if(sources.find(source => source.name === 'Talla Visualizer')){
               screenSource = sources.find(source => source.name === 'Schermo 1')
+            }
+            else {
+              if (sources.length > 0 && sources.length === 1) {
+                screenSource = sources[0];
+              }
             }
             
             if (screenSource) {
