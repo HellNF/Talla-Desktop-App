@@ -205,6 +205,9 @@ function Chart() {
       setPlotData(pd);
       setRevision((prev) => prev + 1);
     }
+    else{
+      setPlotData([]);
+    }
   }, [currentFrame, currentFileData, currentTags, tagSetting]);
 
   return (
