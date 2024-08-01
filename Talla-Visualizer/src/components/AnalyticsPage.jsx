@@ -159,7 +159,7 @@ export default function AnalyticsPage() {
     }
 
     return () => clearInterval(interval); // Pulizia alla dismontaggio
-  }, [play]); // Dipendenze dell'effetto
+  }, [play,speedfactor]); // Dipendenze dell'effetto
 
   const handleTreeSelectChange = (key, data) => {
     for (let item of data) {
