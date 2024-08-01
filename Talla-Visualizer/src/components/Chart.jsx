@@ -33,6 +33,7 @@ function Chart() {
     setYRange,
     xRange,
     setXRange,
+    play 
   } = useGraph();
   const { width, height, ref } = useResizeDetector();
   const [revision, setRevision] = useState(0);
@@ -244,7 +245,7 @@ function Chart() {
           autosize: true,
           title: "Positions of a Person",
           shapes: shapes,
-          legend: { x: 1, xanchor: "right", y: 1 },
+          legend: { x: 1, xanchor: "right", y: 1 ,visible: !play},
           xaxis: { title: "X", range: xRange},
           yaxis: { title: "Y", range: yRange },
         }}
