@@ -19,6 +19,9 @@ export default function TreeCamapaignSelect({ handleTreeSelectChange, deep=false
         else if(type==="elements"){
             !isOnline && getFolderStructureElement();
         }
+        else if(type==="ancors"){
+            !isOnline && getFolderStructureAncors();
+        }
     }, [isOnline]);
 
     function getFolderStructureElement(){
@@ -32,6 +35,13 @@ export default function TreeCamapaignSelect({ handleTreeSelectChange, deep=false
     function getFolderStructure(){
         
         window.electronAPI.invoke(  'tree:CSV:getFilesAndFolders').then((data) => {
+            setData(dataFormatter(data));
+        });
+        
+    }
+    function getFolderStructureAncors(){
+        
+        window.electronAPI.invoke(  'tree:ancors:getFilesAndFolders').then((data) => {
             setData(dataFormatter(data));
         });
         

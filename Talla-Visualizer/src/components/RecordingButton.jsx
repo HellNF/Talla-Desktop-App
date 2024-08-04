@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { VideoCameraIcon, StopIcon } from "@heroicons/react/20/solid";
 
-export default function RecordingButton() {
+export default function RecordingButton({hidden}) {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordedChunks, setRecordedChunks] = useState([]);
@@ -88,7 +88,7 @@ export default function RecordingButton() {
     <>
       <button
         type="button"
-        className="absolute top-5 shadow left-20 rounded-full hover:scale-110 hover:bg-gray-50 p-2 hover:text-unitn-grey z-[110]"
+        className={`absolute top-5 shadow left-20 rounded-full hover:scale-110 hover:bg-gray-50 p-2 hover:text-unitn-grey z-[110] ${hidden?'hidden':''}`}
         onClick={async() => {
           if (!isRecording) {
             const sources = await window.electronAPI.invoke('get-screen-sources');

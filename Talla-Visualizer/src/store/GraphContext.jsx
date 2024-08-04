@@ -6,6 +6,7 @@ const GraphContext = createContext();
 // Crea un provider per il contesto
 export const GraphProvider = ({ children }) => {
   const [currentFileData, setCurrentFileData] = useState([]);
+  const [ancorFileData, setAncorFileData] = useState([]);
   const [currentFileIndexLoaded, setCurrentFileIndexLoaded] = useState([]);
   const [envObjFileData, setEnvObjFileData] = useState([]);
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -18,7 +19,7 @@ export const GraphProvider = ({ children }) => {
   
 
   return (
-    <GraphContext.Provider value={{ currentFileData,setCurrentFileData,envObjFileData,setEnvObjFileData,currentFrame, setCurrentFrame,play, setPlay, currentFileIndexLoaded, setCurrentFileIndexLoaded,positionDetails, setPositionDetails,xRange, setXRange,yRange, setYRange}}>
+    <GraphContext.Provider value={{ currentFileData,setCurrentFileData,envObjFileData,setEnvObjFileData,currentFrame, setCurrentFrame,play, setPlay, currentFileIndexLoaded, setCurrentFileIndexLoaded,positionDetails, setPositionDetails,xRange, setXRange,yRange, setYRange,ancorFileData, setAncorFileData}}>
       {children}
     </GraphContext.Provider>
   );

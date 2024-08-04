@@ -9,6 +9,7 @@ const csvtojson = require('csvtojson');
 const installExtension = require('electron-devtools-installer').default;
 const { REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
 const { glob } = require('glob');
+const { dir } = require('console');
 
 const documentsDir = path.join(os.homedir(), 'Documents');
 const workspaceDir = path.join(documentsDir, 'TallaWorkspace');
@@ -85,6 +86,83 @@ ipcMain.handle('tree:CSV:getFilesAndFolders', () => {
 
 ipcMain.handle('tree:element:getFilesAndFolders', () => {
   return searchWorkspaceDirectory(workspaceDir, "**/elements/*.json");
+});
+ipcMain.handle('tree:ancors:getFilesAndFolders', () => {
+  return searchWorkspaceDirectory(workspaceDir, "**/ancors/*.json");
+});
+ipcMain.handle('graph:getAncorsData', async (event, filePath) => {
+  const dirPath = path.dirname(filePath);
+  const filename= path.basename(filePath);
+  const dirs = glob.sync(`${filename}`, { cwd: dirPath, root: dirPath });
+  let data=[];
+  if(dirs.length !== 0){
+    data=JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    //console.log(data);
+  }
+  return data;
+});
+
+
+ipcMain.handle('graph:hyperbolas', async (event, { filePath, tdoa_obj }) => {
+  const dirPath = path.dirname(filePath);
+  const filename = path.basename(filePath);
+  const outputName = `hyperbola${tdoa_obj.ref_id}.json`;
+  const outputPath = path.join(dirPath, outputName);
+  const dirs = glob.sync(`${filename}`, { cwd: dirPath, root: dirPath });
+
+  if (dirs.length !== 0) {
+    let scriptPath;
+    if (app.isPackaged) {
+      scriptPath = path.join(process.resourcesPath, 'scripts', 'handleHyperbolas.py');
+    } else {
+      scriptPath = path.join(app.getAppPath(), 'src', 'scripts', 'handleHyperbolas.py');
+    }
+
+    let command;
+    const tdoa_str = JSON.stringify(tdoa_obj).replace(/"/g, '\\"');
+    if (process.platform === 'win32') {
+      command = `python "${scriptPath}" "${filePath}" "${outputPath}" "${tdoa_str}"`;
+    } else {
+      command = `python3 "${scriptPath}" "${filePath}" "${outputPath}" "${tdoa_str}"`;
+    }
+
+    console.log(`Executing command: ${command}\n`);
+    
+    // Wrap exec in a promise
+    const execPromise = (command) => {
+      return new Promise((resolve, reject) => {
+        exec(command, (error, stdout, stderr) => {
+          if (error) {
+            reject(`Error executing script: ${error.message}`);
+          }
+          if (stderr) {
+            console.error(`stderr: ${stderr}`);
+          }
+          resolve(stdout);
+        });
+      });
+    };
+
+    try {
+      const stdout = await execPromise(command);
+      console.log(`stdout: ${stdout}`);
+
+      const out = glob.sync(`${outputName}`, { cwd: dirPath, root: dirPath });
+      console.log(out);
+      if (out.length !== 0) {
+        const data=fs.readFileSync(outputPath, 'utf8')
+        return JSON.parse(data.replace(/NaN/g, "null"));
+        //return JSON.parse(fs.readFileSync(outputPath, 'utf8'));
+      }
+      return null;
+
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  return null;
 });
 
 ipcMain.handle('ProcessCSV', async (event, prop) => {

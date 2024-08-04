@@ -6,6 +6,7 @@ import SpeedDropDown from "./SpeedDropDown.jsx";
 import Spinner from "./Spinner.jsx";
 import TagShowBar from "./TagShowBar.jsx";
 import RecordingButton from "./RecordingButton.jsx";
+import HyperboalasChart from "./HyperbolasChart.jsx";
 import {
   AdjustmentsVerticalIcon,
   PlayIcon,
@@ -55,11 +56,21 @@ export default function AnalyticsPage() {
     fpsMode,
     isDetailsOn,
     setIsDetailsOn,
+    ancorsFile,
+    setAncorsFile,
   } = useDashboard();
   const [isTagsChanged, setIsTagsChanged] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { shapes, setShapes, speedfactor, setSpeedFactor,tagSetting,setTagSetting } = useViewSettings();
+  const [isAncorsOpen, setIsAncorsOpen] = useState(false);
+  const {
+    shapes,
+    setShapes,
+    speedfactor,
+    setSpeedFactor,
+    tagSetting,
+    setTagSetting,
+  } = useViewSettings();
   const {
     currentFrame,
     setCurrentFrame,
@@ -68,8 +79,11 @@ export default function AnalyticsPage() {
     positionDetails,
     currentFileData,
     setCurrentFileData,
+    setAncorFileData,
   } = useGraph();
- 
+
+  const [isHyperbolasFull, setIsHyperbolasFull] = useState(false);
+
   const [selectedTags, setSelectedTags] = useState(() => {
     const initialSelectedTags = {};
     index.tags.forEach((obj) => {
@@ -79,15 +93,24 @@ export default function AnalyticsPage() {
     });
     return initialSelectedTags;
   });
-
-  
+  useEffect(() => {
+    if (ancorsFile !== null) {
+      window.electronAPI
+        .invoke("graph:getAncorsData", ancorsFile)
+        .then((data) => {
+          setAncorFileData(data);
+        });
+    }
+  }, [ancorsFile]);
 
   useEffect(() => {
     if (selectedTags !== null) {
       const newTags = Object.keys(selectedTags).filter(
         (tag) => selectedTags[tag]
       );
-      const isChanged = newTags.length !== currentTags.length || newTags.some(tag => !currentTags.includes(tag));
+      const isChanged =
+        newTags.length !== currentTags.length ||
+        newTags.some((tag) => !currentTags.includes(tag));
       setIsTagsChanged(isChanged);
     }
   }, [selectedTags, currentTags]);
@@ -159,15 +182,25 @@ export default function AnalyticsPage() {
     }
 
     return () => clearInterval(interval); // Pulizia alla dismontaggio
-  }, [play,speedfactor]); // Dipendenze dell'effetto
+  }, [play, speedfactor]); // Dipendenze dell'effetto
 
   const handleTreeSelectChange = (key, data) => {
     for (let item of data) {
-      if (item.key === key) {
+      if (item.key === key && item.data.includes(".json")) {
         selectEnvObjFile(item.data);
       }
       if (item.children) {
         handleTreeSelectChange(key, item.children);
+      }
+    }
+  };
+  const handleTreeSelectChangeAncors = (key, data) => {
+    for (let item of data) {
+      if (item.key === key && item.data.includes(".json")) {
+        setAncorsFile(item.data);
+      }
+      if (item.children) {
+        handleTreeSelectChangeAncors(key, item.children);
       }
     }
   };
@@ -186,7 +219,7 @@ export default function AnalyticsPage() {
         <div className="flex flex-row items-center space-x-5">
           <button
             type="button"
-            className="rounded-lg bg-secondary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-details-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
+            className="rounded-lg bg-secondary px-3 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-details-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
             onClick={() => {
               selectFile("");
               setIsSet(false);
@@ -199,7 +232,7 @@ export default function AnalyticsPage() {
           </button>
           <button
             type="button"
-            className="rounded-lg bg-secondary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-details-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
+            className="rounded-lg bg-secondary px-3 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-details-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
             onClick={() => {
               setIsDetailsOn(!isDetailsOn);
             }}
@@ -228,6 +261,15 @@ export default function AnalyticsPage() {
                   </ModalHeader>
                   <ModalBody>
                     <div>
+                      <label>Select the ancors file:</label>
+                      <TreeCampaignSelect
+                        className="text-black"
+                        handleTreeSelectChange={handleTreeSelectChangeAncors}
+                        deep={true}
+                        type="ancors"
+                      />
+                    </div>
+                    <div>
                       <label>Select the env element file:</label>
                       <TreeCampaignSelect
                         className="text-black"
@@ -236,6 +278,7 @@ export default function AnalyticsPage() {
                         type="elements"
                       />
                     </div>
+
                     <hr orientation="horizontal" className="py-2" />
                     <h1>Shapes</h1>
                     <Table>
@@ -303,7 +346,9 @@ export default function AnalyticsPage() {
                       <TableHeader>
                         <TableColumn align="center">Tag</TableColumn>
                         <TableColumn align="center">Main color</TableColumn>
-                        <TableColumn align="center">Footprint color</TableColumn>
+                        <TableColumn align="center">
+                          Footprint color
+                        </TableColumn>
                       </TableHeader>
                       <TableBody>
                         {Object.keys(tagSetting).map((tag) => {
@@ -329,17 +374,18 @@ export default function AnalyticsPage() {
                                   color={tagSetting[tag].color.footprint}
                                   onChange={(c) => {
                                     let newTagSetting = { ...tagSetting };
-                                    newTagSetting[tag].color.footprint = `rgba(${
-                                      c.r
-                                    },${c.g},${c.b},${isNaN(c.a) ? 1 : c.a})`;
+                                    newTagSetting[
+                                      tag
+                                    ].color.footprint = `rgba(${c.r},${c.g},${
+                                      c.b
+                                    },${isNaN(c.a) ? 1 : c.a})`;
                                     setTagSetting(newTagSetting);
                                   }}
                                 ></PopoverColorPicker>
                               </TableCell>
                             </TableRow>
                           );
-                        }
-                        )}
+                        })}
                       </TableBody>
                     </Table>
                   </ModalBody>
@@ -378,7 +424,7 @@ export default function AnalyticsPage() {
                   <>
                     <button
                       type="button"
-                      className="absolute top-5 shadow left-5 rounded-full hover:scale-110 hover:bg-gray-50 p-2 hover:text-unitn-grey z-[110]"
+                      className={`absolute top-5 shadow left-5 rounded-full hover:scale-110 hover:bg-gray-50 p-2 hover:text-unitn-grey z-[110] ${isHyperbolasFull?"hidden":''}`}
                       onClick={() => {
                         setIsFullScreen(!isFullScreen);
                       }}
@@ -389,7 +435,7 @@ export default function AnalyticsPage() {
                         <ArrowsPointingOutIcon className="h-6 w-6"></ArrowsPointingOutIcon>
                       )}
                     </button>
-                    <RecordingButton></RecordingButton>
+                    <RecordingButton hidden={isHyperbolasFull}></RecordingButton>
                     <div
                       className={
                         isFullScreen
@@ -569,7 +615,65 @@ export default function AnalyticsPage() {
               </button>
             </div>
 
-            <div className="flex flex-col space-y-3 items-center justify-center m-3 w-full max-w-xl">
+            <div className="flex items-center justify-center">
+              <Button
+                onPress={() => setIsAncorsOpen(!isAncorsOpen)}
+                className={`rounded-md bg-details-blue px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-details-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-blue ${
+                  ancorsFile ? "" : "hidden"
+                }`}
+              >
+                Show Hyperbolas
+              </Button>
+              <Modal
+                backdrop="blur"
+                isOpen={isAncorsOpen}
+                onOpenChange={() => setIsAncorsOpen(!isAncorsOpen)}
+                isDismissable={false}
+                className="z-[150]"
+                placement="center"
+              >
+                <ModalContent
+                  className={`bg-details-light-blue rounded-lg ${
+                    isHyperbolasFull ? "h-full w-full" : "h-4/5 w-4/6"
+                  } text-unitn-grey hide-scrollbar overflow-scroll shadow-lg `}
+                >
+                  {(onClose) => (
+                    <>
+                      <ModalHeader className="flex flex-row gap-1 justify-between">
+                        <h1 className="font-semibold text-lg text-gray-100">
+                          Settings
+                        </h1>
+                        <button
+                          type="button"
+                          className="shadow rounded-full hover:scale-110 hover:bg-gray-50 p-2 hover:text-unitn-grey z-[160]"
+                          onClick={() => setIsHyperbolasFull(!isHyperbolasFull)}
+                        >
+                          {isHyperbolasFull ? (
+                            <ArrowsPointingInIcon className="h-6 w-6"></ArrowsPointingInIcon>
+                          ) : (
+                            <ArrowsPointingOutIcon className="h-6 w-6"></ArrowsPointingOutIcon>
+                          )}
+                        </button>
+                      </ModalHeader>
+                      <ModalBody className="">
+                        <HyperboalasChart></HyperboalasChart>
+                      </ModalBody>
+                      <ModalFooter>
+                        <Button
+                          variant="light"
+                          className="bg-gray-100 rounded-md"
+                          onPress={onClose}
+                        >
+                          Close
+                        </Button>
+                      </ModalFooter>
+                    </>
+                  )}
+                </ModalContent>
+              </Modal>
+            </div>
+
+            <div className="flex flex-col space-y-3 items-center justify-center m-3 w-full">
               {isDetailsOn && positionDetails ? (
                 Object.keys(positionDetails).map((key, index) => {
                   return (
