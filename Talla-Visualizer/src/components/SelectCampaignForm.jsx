@@ -80,7 +80,7 @@ export default function SelectCampaignForm() {
         </button>
         <button
           type="submit"
-          className="rounded-md bg-secondary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-details-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
+          className="rounded-md bg-gradient-to-br transition duration-0  hover:duration-1000 ease-in-out from-secondary to-details-red px-3 py-2 text-sm font-semibold shadow-md text-white shadow-gray-600 hover:from-details-red hover:to-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
         >
           Submit
         </button>

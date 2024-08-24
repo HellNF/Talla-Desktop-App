@@ -40,6 +40,7 @@ import Chart from "./Chart.jsx";
 import { useViewSettings } from "../store/viewSettingsContext.jsx";
 import PopoverColorPicker from "./PopoverColorPicker.jsx";
 import { useGraph } from "../store/GraphContext.jsx";
+import PositionDetails from "./PositionDetails.jsx";
 
 export default function AnalyticsPage() {
   const {
@@ -247,32 +248,38 @@ export default function AnalyticsPage() {
             <AdjustmentsVerticalIcon className="w-6 h-6"></AdjustmentsVerticalIcon>
           </Button>
           <Modal
-            backdrop="blur"
+            backdrop="blur" 
+             classNames={
+                 {
+                     backdrop: " bg-zinc-900/30 backdrop-blur-sm",
+                 }
+             }
             isOpen={isOpen}
             onOpenChange={onOpenChange}
             isDismissable={false}
             placement="center"
+            
           >
-            <ModalContent className="bg-secondary rounded-lg h-2/3 w-1/2 text-dirty-white hide-scrollbar overflow-scroll">
+            <ModalContent className="bg-primary border border-details-light-blue/80 shadow-lg rounded-lg h-2/3 w-1/2 text-unitn-grey hide-scrollbar overflow-scroll " >
               {(onClose) => (
                 <>
                   <ModalHeader className="flex flex-col gap-1">
-                    <h1 className="font-semibold text-lg">Settings</h1>
+                    <h1 className="font-bold text-lg">Settings</h1>
                   </ModalHeader>
-                  <ModalBody>
-                    <div>
-                      <label>Select the ancors file:</label>
+                  <ModalBody className="mx-5">
+                    <div >
+                      <label className="font-semibold">Select the ancors file:</label>
                       <TreeCampaignSelect
-                        className="text-black"
+                        className="text-black border "
                         handleTreeSelectChange={handleTreeSelectChangeAncors}
                         deep={true}
                         type="ancors"
                       />
                     </div>
                     <div>
-                      <label>Select the env element file:</label>
+                      <label className="font-semibold" >Select the env element file:</label>
                       <TreeCampaignSelect
-                        className="text-black"
+                        className="text-black border "
                         handleTreeSelectChange={handleTreeSelectChange}
                         deep={true}
                         type="elements"
@@ -280,7 +287,7 @@ export default function AnalyticsPage() {
                     </div>
 
                     <hr orientation="horizontal" className="py-2" />
-                    <h1>Shapes</h1>
+                    <h1 className="font-semibold">Shapes</h1>
                     <Table>
                       <TableHeader>
                         <TableColumn align="center">Label</TableColumn>
@@ -341,7 +348,7 @@ export default function AnalyticsPage() {
                       </TableBody>
                     </Table>
                     <hr orientation="horizontal" className="py-2" />
-                    <h1>Tags</h1>
+                    <h1 className="font-semibold" >Tags</h1>
                     <Table>
                       <TableHeader>
                         <TableColumn align="center">Tag</TableColumn>
@@ -394,7 +401,7 @@ export default function AnalyticsPage() {
                       Close
                     </Button>
                     <Button
-                      className="rounded-md bg-gray-700 "
+                      className="rounded-md bg-gray-700 text-white"
                       onPress={onClose}
                     >
                       Action
@@ -414,7 +421,7 @@ export default function AnalyticsPage() {
                 size={80}
                 className={`${
                   !isFullScreen && "relative"
-                } flex flex-col items-center shadow`}
+                } flex flex-col items-center shadow border-black/10 rounded-lg`}
               >
                 {index.fileIndex === undefined ? (
                   <div className="flex items-center justify-center w-full h-full">
@@ -516,7 +523,7 @@ export default function AnalyticsPage() {
               </SplitterPanel>
               <SplitterPanel
                 size={20}
-                className="overflow-y-scroll shadow hide-scrollbar flex flex-col items-center h-full"
+                className="overflow-y-scroll shadow border-black/10 hide-scrollbar flex flex-col items-center h-full rounded-lg"
               >
                 <div className="px-4 py-2 w-full font-semibold">
                   <h1>Timelines</h1>
@@ -600,15 +607,15 @@ export default function AnalyticsPage() {
             id="details"
             size={20}
             minSize={1}
-            className={`overflow-y-scroll shadow h-full hide-scrollbar ${
+            className={`overflow-y-scroll shadow  hide-scrollbar border-black/10 rounded-lg ${
               isDetailsOn ? "" : "hidden"
             }`}
           >
-            <div className="p-2 flex flex-row justify-between">
-              <h1>Details</h1>
+            <div className="p-2 flex flex-row justify-between items-center bg-[#f5f6f8] m-5 rounded-md">
+              <h1 className="text-lg font-semibold px-4">Details</h1>
               <button
                 type="button"
-                className="p-2 shadow-sm rounded-full"
+                className="p-2  rounded-full"
                 onClick={() => setIsDetailsOn(false)}
               >
                 <XMarkIcon className="h-6 w-6"></XMarkIcon>
@@ -625,7 +632,12 @@ export default function AnalyticsPage() {
                 Show Hyperbolas
               </Button>
               <Modal
-                backdrop="blur"
+                backdrop="blur" 
+                classNames={
+                    {
+                        backdrop: " bg-zinc-900/30 backdrop-blur-sm",
+                    }
+                }
                 isOpen={isAncorsOpen}
                 onOpenChange={() => setIsAncorsOpen(!isAncorsOpen)}
                 isDismissable={false}
@@ -633,19 +645,19 @@ export default function AnalyticsPage() {
                 placement="center"
               >
                 <ModalContent
-                  className={`bg-details-light-blue rounded-lg ${
+                  className={`bg-primary border border-details-light-blue shadow-lg rounded-lg text-unitn-grey  ${
                     isHyperbolasFull ? "h-full w-full" : "h-4/5 w-4/6"
-                  } text-unitn-grey hide-scrollbar overflow-scroll shadow-lg `}
+                  }  hide-scrollbar overflow-scroll `}
                 >
                   {(onClose) => (
                     <>
                       <ModalHeader className="flex flex-row gap-1 justify-between">
-                        <h1 className="font-semibold text-lg text-gray-100">
-                          Settings
+                        <h1 className="font-bold text-lg text-unitn-grey">
+                          Hyperbolas
                         </h1>
                         <button
                           type="button"
-                          className="shadow rounded-full hover:scale-110 hover:bg-gray-50 p-2 hover:text-unitn-grey z-[160]"
+                          className="shadow-md rounded-full hover:scale-110 hover:bg-gray-50 p-2 hover:text-unitn-grey z-[160]"
                           onClick={() => setIsHyperbolasFull(!isHyperbolasFull)}
                         >
                           {isHyperbolasFull ? (
@@ -673,24 +685,10 @@ export default function AnalyticsPage() {
               </Modal>
             </div>
 
-            <div className="flex flex-col space-y-3 items-center justify-center m-3 w-full">
+            <div className="flex-wrap flex-col space-y-3 items-center justify-center my-3 mx-5  ">
               {isDetailsOn && positionDetails ? (
-                Object.keys(positionDetails).map((key, index) => {
-                  return (
-                    <div
-                      key={index}
-                      className="flex flex-col md:flex-row items-center justify-between w-full bg-gray-100/80 rounded-md p-3 shadow-md"
-                    >
-                      <label className="  w-full  p-2 rounded-md text-black font-semibold text-center">
-                        {key}:
-                      </label>
-                      <label className="w-full  p-2 text-center  md:text-left">
-                        {positionDetails[key]}
-                      </label>
-                    </div>
-                  );
-                })
-              ) : (
+                <PositionDetails></PositionDetails>)
+               : (
                 <div className="text-center text-gray-500">
                   No details available
                 </div>

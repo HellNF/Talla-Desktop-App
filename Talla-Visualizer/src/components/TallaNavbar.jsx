@@ -14,7 +14,7 @@ import {
 function TallaNavbar() {
   const { isOnline } = useMode();
   return (
-    <nav className="bg-secondary  w-full p-4 z-50 fixed top-0">
+    <nav className="bg-gradient-to-tl  from-secondary to-details-red  w-full p-4 z-50 fixed top-0">
       <div className="mx-auto flex justify-between items-center md:mx-7">
         <Link
           to="/"
