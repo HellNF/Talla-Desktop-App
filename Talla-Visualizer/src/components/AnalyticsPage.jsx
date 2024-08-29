@@ -255,157 +255,160 @@ export default function AnalyticsPage() {
                  }
              }
             isOpen={isOpen}
+            hideCloseButton={true}
             onOpenChange={onOpenChange}
             isDismissable={false}
-            placement="center"
+                
+        placement="center"
             
           >
-            <ModalContent className="bg-primary border border-details-light-blue/80 shadow-lg rounded-lg h-2/3 w-1/2 text-unitn-grey hide-scrollbar overflow-scroll " >
+            <ModalContent className="bg-dirty-white border border-details-light-blue/80 shadow-lg rounded-lg h-2/3 w-1/2 text-unitn-grey hide-scrollbar overflow-scroll " >
               {(onClose) => (
                 <>
-                  <ModalHeader className="flex flex-col gap-1">
+                  <ModalHeader className="flex flex-row gap-1 justify-between">
                     <h1 className="font-bold text-lg">Settings</h1>
+                    <button type="button" className="m-2 p-1 rounded-full bg-primary shadow" onClick={onClose}>
+                      <XMarkIcon className="h-4 w-4"></XMarkIcon>
+                    </button>
                   </ModalHeader>
-                  <ModalBody className="mx-5">
-                    <div >
-                      <label className="font-semibold">Select the ancors file:</label>
-                      <TreeCampaignSelect
-                        className="text-black border "
-                        handleTreeSelectChange={handleTreeSelectChangeAncors}
-                        deep={true}
-                        type="ancors"
-                      />
+                  <ModalBody className="mx-5 flex flex-col space-y-5">
+                    <div className="bg-primary p-4 rounded-md shadow-[0px_1px_34px_0px_rgba(0,0,0,0.08)] border-black/10 ">
+                      <div>
+                        <label className="font-semibold">Select the ancors file:</label>
+                        <TreeCampaignSelect
+                          className="text-black border "
+                          handleTreeSelectChange={handleTreeSelectChangeAncors}
+                          deep={true}
+                          type="ancors"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-semibold" >Select the env element file:</label>
+                        <TreeCampaignSelect
+                          className="text-black border "
+                          handleTreeSelectChange={handleTreeSelectChange}
+                          deep={true}
+                          type="elements"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="font-semibold" >Select the env element file:</label>
-                      <TreeCampaignSelect
-                        className="text-black border "
-                        handleTreeSelectChange={handleTreeSelectChange}
-                        deep={true}
-                        type="elements"
-                      />
-                    </div>
+                    <div className="bg-primary p-4 rounded-md shadow-[0px_1px_34px_0px_rgba(0,0,0,0.08)] border-black/10 ">
+                      <h1 className="font-semibold">Shapes</h1>
+                      <Table classNames={{"th":"bg-secondary/10",}}>
+                        <TableHeader>
+                          <TableColumn align="center">Label</TableColumn>
+                          <TableColumn align="center">Fill color</TableColumn>
+                          <TableColumn align="center">Line color</TableColumn>
+                          <TableColumn align="center">Visible</TableColumn>
+                        </TableHeader>
+                        <TableBody>
+                          {shapes.length > 0 &&
+                            shapes.map((shape, index) => {
+                              return (
+                                <TableRow key={index} className=" items-center">
+                                  <TableCell>
+                                    <label>{shape.label.text}</label>
+                                  </TableCell>
+                                  <TableCell>
+                                    <PopoverColorPicker
+                                      color={shape.fillcolor}
+                                      onChange={(c) => {
+                                        console.log(c);
+                                        let newShapes = [...shapes];
+                                        newShapes[index].fillcolor = `rgba(${
+                                          c.r
+                                        },${c.g},${c.b},${
+                                          isNaN(c.a) ? 0.6 : c.a
+                                        })`;
+                                        setShapes(newShapes);
+                                      }}
+                                    ></PopoverColorPicker>
+                                  </TableCell>
+                                  <TableCell>
+                                    <PopoverColorPicker
+                                      color={shape.line.color}
+                                      onChange={(c) => {
+                                        console.log(c);
 
-                    <hr orientation="horizontal" className="py-2" />
-                    <h1 className="font-semibold">Shapes</h1>
-                    <Table>
-                      <TableHeader>
-                        <TableColumn align="center">Label</TableColumn>
-                        <TableColumn align="center">Fill color</TableColumn>
-                        <TableColumn align="center">Line color</TableColumn>
-                        <TableColumn align="center">Visible</TableColumn>
-                      </TableHeader>
-                      <TableBody>
-                        {shapes.length > 0 &&
-                          shapes.map((shape, index) => {
+                                        let newShapes = [...shapes];
+                                        newShapes[index].line.color = `rgba(${
+                                          c.r
+                                        },${c.g},${c.b},${isNaN(c.a) ? 1 : c.a})`;
+                                        setShapes(newShapes);
+                                      }}
+                                    ></PopoverColorPicker>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Checkbox
+                                      checked={shape.visible}
+                                      onChange={(e) => {
+                                        let newShapes = [...shapes];
+                                        newShapes[index].visible = e.checked;
+                                        setShapes(newShapes);
+                                      }}
+                                    ></Checkbox>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                        </TableBody>
+                      </Table >
+                    </div>
+                    <div className="bg-primary p-4 rounded-md shadow-[0px_1px_34px_0px_rgba(0,0,0,0.08)] border-black/10 ">
+                      <h1 className="font-semibold" >Tags</h1>
+                      <Table classNames={{"th":"bg-secondary/10",}}>
+                        <TableHeader>
+                          <TableColumn align="center">Tag</TableColumn>
+                          <TableColumn align="center">Main color</TableColumn>
+                          <TableColumn align="center">
+                            Footprint color
+                          </TableColumn>
+                        </TableHeader>
+                        <TableBody>
+                          {Object.keys(tagSetting).map((tag) => {
                             return (
-                              <TableRow key={index} className=" items-center">
+                              <TableRow key={tag} className=" items-center">
                                 <TableCell>
-                                  <label>{shape.label.text}</label>
+                                  <label>{tag}</label>
                                 </TableCell>
                                 <TableCell>
                                   <PopoverColorPicker
-                                    color={shape.fillcolor}
+                                    color={tagSetting[tag].color.main}
                                     onChange={(c) => {
-                                      console.log(c);
-                                      let newShapes = [...shapes];
-                                      newShapes[index].fillcolor = `rgba(${
-                                        c.r
-                                      },${c.g},${c.b},${
-                                        isNaN(c.a) ? 0.6 : c.a
-                                      })`;
-                                      setShapes(newShapes);
-                                    }}
-                                  ></PopoverColorPicker>
-                                </TableCell>
-                                <TableCell>
-                                  <PopoverColorPicker
-                                    color={shape.line.color}
-                                    onChange={(c) => {
-                                      console.log(c);
-
-                                      let newShapes = [...shapes];
-                                      newShapes[index].line.color = `rgba(${
+                                      let newTagSetting = { ...tagSetting };
+                                      newTagSetting[tag].color.main = `rgba(${
                                         c.r
                                       },${c.g},${c.b},${isNaN(c.a) ? 1 : c.a})`;
-                                      setShapes(newShapes);
+                                      setTagSetting(newTagSetting);
                                     }}
                                   ></PopoverColorPicker>
                                 </TableCell>
                                 <TableCell>
-                                  <Checkbox
-                                    checked={shape.visible}
-                                    onChange={(e) => {
-                                      let newShapes = [...shapes];
-                                      newShapes[index].visible = e.checked;
-                                      setShapes(newShapes);
+                                  <PopoverColorPicker
+                                    color={tagSetting[tag].color.footprint}
+                                    onChange={(c) => {
+                                      let newTagSetting = { ...tagSetting };
+                                      newTagSetting[
+                                        tag
+                                      ].color.footprint = `rgba(${c.r},${c.g},${
+                                        c.b
+                                      },${isNaN(c.a) ? 1 : c.a})`;
+                                      setTagSetting(newTagSetting);
                                     }}
-                                  ></Checkbox>
+                                  ></PopoverColorPicker>
                                 </TableCell>
                               </TableRow>
                             );
                           })}
-                      </TableBody>
-                    </Table>
-                    <hr orientation="horizontal" className="py-2" />
-                    <h1 className="font-semibold" >Tags</h1>
-                    <Table>
-                      <TableHeader>
-                        <TableColumn align="center">Tag</TableColumn>
-                        <TableColumn align="center">Main color</TableColumn>
-                        <TableColumn align="center">
-                          Footprint color
-                        </TableColumn>
-                      </TableHeader>
-                      <TableBody>
-                        {Object.keys(tagSetting).map((tag) => {
-                          return (
-                            <TableRow key={tag} className=" items-center">
-                              <TableCell>
-                                <label>{tag}</label>
-                              </TableCell>
-                              <TableCell>
-                                <PopoverColorPicker
-                                  color={tagSetting[tag].color.main}
-                                  onChange={(c) => {
-                                    let newTagSetting = { ...tagSetting };
-                                    newTagSetting[tag].color.main = `rgba(${
-                                      c.r
-                                    },${c.g},${c.b},${isNaN(c.a) ? 1 : c.a})`;
-                                    setTagSetting(newTagSetting);
-                                  }}
-                                ></PopoverColorPicker>
-                              </TableCell>
-                              <TableCell>
-                                <PopoverColorPicker
-                                  color={tagSetting[tag].color.footprint}
-                                  onChange={(c) => {
-                                    let newTagSetting = { ...tagSetting };
-                                    newTagSetting[
-                                      tag
-                                    ].color.footprint = `rgba(${c.r},${c.g},${
-                                      c.b
-                                    },${isNaN(c.a) ? 1 : c.a})`;
-                                    setTagSetting(newTagSetting);
-                                  }}
-                                ></PopoverColorPicker>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
+                        </TableBody>
+                      </Table>
+                    </div>
                   </ModalBody>
                   <ModalFooter>
                     <Button variant="light" onPress={onClose}>
                       Close
                     </Button>
-                    <Button
-                      className="rounded-md bg-gray-700 text-white"
-                      onPress={onClose}
-                    >
-                      Action
-                    </Button>
+                   
                   </ModalFooter>
                 </>
               )}
