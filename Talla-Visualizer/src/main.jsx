@@ -18,7 +18,7 @@ import { ViewSettingsProvider } from "./store/viewSettingsContext.jsx";
 const router = (
   <HashRouter>
     <Routes>
-      <Route path="/" element={<Home />} />
+      {/* <Route path="/" element={<Home />} /> */}
       <Route path="/upload" element={<UploadPage />} />
       <Route path="/dashboard" element={<Dashboard />} />
     </Routes>

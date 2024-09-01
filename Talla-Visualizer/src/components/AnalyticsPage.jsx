@@ -424,7 +424,7 @@ export default function AnalyticsPage() {
                 size={80}
                 className={`${
                   !isFullScreen && "relative"
-                } flex flex-col items-center shadow border-black/10 rounded-lg`}
+                } flex flex-col items-center shadow border-black/5 border rounded-lg`}
               >
                 {index.fileIndex === undefined ? (
                   <div className="flex items-center justify-center w-full h-full">
@@ -526,7 +526,7 @@ export default function AnalyticsPage() {
               </SplitterPanel>
               <SplitterPanel
                 size={20}
-                className="overflow-y-scroll shadow border-black/10 hide-scrollbar flex flex-col items-center h-full rounded-lg"
+                className="overflow-y-scroll shadow border-black/5 border hide-scrollbar flex flex-col items-center h-full rounded-lg"
               >
                 <div className="px-4 py-2 w-full font-semibold">
                   <h1>Timelines</h1>
@@ -610,7 +610,7 @@ export default function AnalyticsPage() {
             id="details"
             size={20}
             minSize={1}
-            className={`overflow-y-scroll shadow  hide-scrollbar border-black/10 rounded-lg ${
+            className={`overflow-y-scroll h-full shadow min-w-96 hide-scrollbar border-black/5 border rounded-lg ${
               isDetailsOn ? "" : "hidden"
             }`}
           >
@@ -688,7 +688,7 @@ export default function AnalyticsPage() {
               </Modal>
             </div>
 
-            <div className="flex-wrap flex-col space-y-3 items-center justify-center my-3 mx-5  ">
+            <div className="flex-wrap flex-col h-full  space-y-3 items-center justify-center my-3 mx-5  ">
               {isDetailsOn && positionDetails ? (
                 <PositionDetails></PositionDetails>)
                : (

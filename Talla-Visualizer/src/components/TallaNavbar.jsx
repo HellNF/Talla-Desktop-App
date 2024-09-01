@@ -33,14 +33,14 @@ function TallaNavbar() {
               aria-label="Static Actions"
               className="bg-secondary/90 w-auto justify-center sm:w-40 lg:hidden rounded-lg"
             >
-              <DropdownItem key="home">
+              {/* <DropdownItem key="home">
                 <Link
                   to="/"
                   className="block text-primary px-3 py-2 rounded hover:bg-white/20"
                 >
                   Home
                 </Link>
-              </DropdownItem>
+              </DropdownItem> */}
               <DropdownItem key="Dashboard">
                 <Link
                   to="/dashboard"
@@ -73,14 +73,14 @@ function TallaNavbar() {
         <ul
           className={`text-lg lg:flex lg:items-center lg:space-x-6 hidden w-full lg:w-auto`}
         >
-          <li>
+          {/* <li>
             <Link
               to="/"
               className="block text-primary px-3 py-2 rounded hover:bg-white/20"
             >
               Home
             </Link>
-          </li>
+          </li> */}
           <li>
             <Link
               to="/dashboard"

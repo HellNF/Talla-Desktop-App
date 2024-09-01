@@ -16,7 +16,7 @@ export default function SelectCampaignForm() {
 
   return (
     <form
-      className="flex flex-col items-center w-3/5 bg-primary p-5 rounded-lg shadow-md"
+      className="flex flex-col items-center w-3/5 bg-primary p-5 rounded-lg shadow-[0px_1px_34px_0px_rgba(0,0,0,0.1)] border-black/10 border"
       onSubmit={(e) => {
         e.preventDefault();
         if (currentFile !== "" && fpsMode !== null) {
@@ -80,7 +80,7 @@ export default function SelectCampaignForm() {
         </button>
         <button
           type="submit"
-          className="rounded-md bg-gradient-to-br transition duration-0  hover:duration-1000 ease-in-out from-secondary to-details-red px-3 py-2 text-sm font-semibold shadow-md text-white shadow-gray-600 hover:from-details-red hover:to-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
+          className="rounded-md relative bg-secondary px-3 py-2 shadow-[0px_1px_5px_0px_rgba(0,0,0,0.08)] text-sm font-semibold text-white shadow-gray-600    focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
         >
           Submit
         </button>

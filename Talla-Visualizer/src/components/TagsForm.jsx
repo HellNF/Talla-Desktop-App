@@ -42,7 +42,7 @@ export default function TagsForm() {
 
   return (
     <>
-      <form className="flex flex-col items-center w-11/12 md:w-3/5 bg-primary p-5 rounded-lg shadow-md" onSubmit={handleSubmit}>
+      <form className="flex flex-col items-center w-11/12 md:w-3/5 bg-primary p-5 rounded-lg shadow-[0px_1px_32px_0px_rgba(0,0,0,0.08)] border border-black/10" onSubmit={handleSubmit}>
         <div className="flex w-full flex-col space-y-4 px-4 items-center">
           <h3 className="text-md text-opacity-50 font-medium leading-7">
             Select which tags to load
