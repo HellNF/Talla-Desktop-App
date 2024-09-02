@@ -43,7 +43,7 @@ function TallaNavbar() {
               </DropdownItem> */}
               <DropdownItem key="Dashboard">
                 <Link
-                  to="/dashboard"
+                  to="/"
                   className="block text-primary px-3 py-2 rounded hover:bg-white/20"
                 >
                   Dashboard
@@ -83,7 +83,7 @@ function TallaNavbar() {
           </li> */}
           <li>
             <Link
-              to="/dashboard"
+              to="/"
               className="block text-primary px-3 py-2 rounded hover:bg-white/20"
             >
               Dashboard

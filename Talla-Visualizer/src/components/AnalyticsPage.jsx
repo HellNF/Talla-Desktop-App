@@ -42,6 +42,39 @@ import PopoverColorPicker from "./PopoverColorPicker.jsx";
 import { useGraph } from "../store/GraphContext.jsx";
 import PositionDetails from "./PositionDetails.jsx";
 
+function rgbaToHex(rgba) {
+  // Estrazione dei valori rgba dalla stringa
+  const rgbaValues = rgba.match(
+    /rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*(\d*\.?\d+)?\)/
+  );
+
+  // Se non è stato trovato un match valido, restituisce null
+  if (!rgbaValues) return null;
+
+  // Converte i singoli valori di r, g, b in numeri
+  let r = parseInt(rgbaValues[1]);
+  let g = parseInt(rgbaValues[2]);
+  let b = parseInt(rgbaValues[3]);
+  let a = rgbaValues[4] ? parseFloat(rgbaValues[4]) : 1; // Alpha predefinito 1 se non specificato
+
+  // Funzione per convertire un valore numerico (0-255) in una stringa HEX a 2 cifre
+  const toHex = (value) => {
+    let hex = value.toString(16);
+    return hex.length === 1 ? "0" + hex : hex;
+  };
+
+  // Converti r, g, b in esadecimale
+  let hexR = toHex(r);
+  let hexG = toHex(g);
+  let hexB = toHex(b);
+
+  // Converti il valore alpha (0-1) in esadecimale, con valori da 00 a FF
+  let hexA = toHex(Math.round(a * 255));
+
+  // Se l'alpha è 1 (completamente opaco), restituisci solo RGB in formato HEX
+  return `#${hexR}${hexG}${hexB}${a < 1 ? hexA : ""}`;
+}
+
 export default function AnalyticsPage() {
   const {
     currentFile,
@@ -248,33 +281,35 @@ export default function AnalyticsPage() {
             <AdjustmentsVerticalIcon className="w-6 h-6"></AdjustmentsVerticalIcon>
           </Button>
           <Modal
-            backdrop="blur" 
-             classNames={
-                 {
-                     backdrop: " bg-zinc-900/30 backdrop-blur-sm",
-                 }
-             }
+            backdrop="blur"
+            classNames={{
+              backdrop: " bg-zinc-900/30 backdrop-blur-sm",
+            }}
             isOpen={isOpen}
             hideCloseButton={true}
             onOpenChange={onOpenChange}
             isDismissable={false}
-                
-        placement="center"
-            
+            placement="center"
           >
-            <ModalContent className="bg-dirty-white border border-details-light-blue/80 shadow-lg rounded-lg h-2/3 w-1/2 text-unitn-grey hide-scrollbar overflow-scroll " >
+            <ModalContent className="bg-dirty-white border border-details-light-blue/80 shadow-lg rounded-lg h-2/3 w-1/2 text-unitn-grey hide-scrollbar overflow-scroll ">
               {(onClose) => (
                 <>
                   <ModalHeader className="flex flex-row gap-1 justify-between">
                     <h1 className="font-bold text-lg">Settings</h1>
-                    <button type="button" className="m-2 p-1 rounded-full bg-primary shadow" onClick={onClose}>
+                    <button
+                      type="button"
+                      className="m-2 p-1 rounded-full bg-primary shadow"
+                      onClick={onClose}
+                    >
                       <XMarkIcon className="h-4 w-4"></XMarkIcon>
                     </button>
                   </ModalHeader>
                   <ModalBody className="mx-5 flex flex-col space-y-5">
                     <div className="bg-primary p-4 rounded-md shadow-[0px_1px_34px_0px_rgba(0,0,0,0.08)] border-black/10 ">
                       <div>
-                        <label className="font-semibold">Select the ancors file:</label>
+                        <label className="font-semibold">
+                          Select the ancors file:
+                        </label>
                         <TreeCampaignSelect
                           className="text-black border "
                           handleTreeSelectChange={handleTreeSelectChangeAncors}
@@ -283,7 +318,9 @@ export default function AnalyticsPage() {
                         />
                       </div>
                       <div>
-                        <label className="font-semibold" >Select the env element file:</label>
+                        <label className="font-semibold">
+                          Select the env element file:
+                        </label>
                         <TreeCampaignSelect
                           className="text-black border "
                           handleTreeSelectChange={handleTreeSelectChange}
@@ -294,7 +331,7 @@ export default function AnalyticsPage() {
                     </div>
                     <div className="bg-primary p-4 rounded-md shadow-[0px_1px_34px_0px_rgba(0,0,0,0.08)] border-black/10 ">
                       <h1 className="font-semibold">Shapes</h1>
-                      <Table classNames={{"th":"bg-secondary/10",}}>
+                      <Table classNames={{ th: "bg-secondary/10" }}>
                         <TableHeader>
                           <TableColumn align="center">Label</TableColumn>
                           <TableColumn align="center">Fill color</TableColumn>
@@ -309,22 +346,27 @@ export default function AnalyticsPage() {
                                   <TableCell>
                                     <label>{shape.label.text}</label>
                                   </TableCell>
-                                  <TableCell>
-                                    <PopoverColorPicker
-                                      color={shape.fillcolor}
-                                      onChange={(c) => {
-                                        console.log(c);
-                                        let newShapes = [...shapes];
-                                        newShapes[index].fillcolor = `rgba(${
-                                          c.r
-                                        },${c.g},${c.b},${
-                                          isNaN(c.a) ? 0.6 : c.a
-                                        })`;
-                                        setShapes(newShapes);
-                                      }}
-                                    ></PopoverColorPicker>
+                                  <TableCell >
+                                    <div className="flex items-center justify-center  space-x-2">
+                                      <PopoverColorPicker
+                                        color={shape.fillcolor}
+                                        onChange={(c) => {
+                                          console.log(c);
+                                          let newShapes = [...shapes];
+                                          newShapes[index].fillcolor = `rgba(${
+                                            c.r
+                                          },${c.g},${c.b},${
+                                            isNaN(c.a) ? 0.6 : c.a
+                                          })`;
+                                          setShapes(newShapes);
+                                        }}
+                                      ></PopoverColorPicker>
+                                      <label className="text-black/70 uppercase text-sm">{rgbaToHex(shape.fillcolor)}</label>
+                                    </div>
+                                    
                                   </TableCell>
-                                  <TableCell>
+                                  <TableCell >
+                                  <div className="flex items-center justify-center  space-x-2">
                                     <PopoverColorPicker
                                       color={shape.line.color}
                                       onChange={(c) => {
@@ -333,10 +375,14 @@ export default function AnalyticsPage() {
                                         let newShapes = [...shapes];
                                         newShapes[index].line.color = `rgba(${
                                           c.r
-                                        },${c.g},${c.b},${isNaN(c.a) ? 1 : c.a})`;
+                                        },${c.g},${c.b},${
+                                          isNaN(c.a) ? 1 : c.a
+                                        })`;
                                         setShapes(newShapes);
                                       }}
                                     ></PopoverColorPicker>
+                                    <label className="text-black/70 uppercase text-sm">{rgbaToHex(shape.line.color)}</label>
+                                  </div>
                                   </TableCell>
                                   <TableCell>
                                     <Checkbox
@@ -352,11 +398,11 @@ export default function AnalyticsPage() {
                               );
                             })}
                         </TableBody>
-                      </Table >
+                      </Table>
                     </div>
                     <div className="bg-primary p-4 rounded-md shadow-[0px_1px_34px_0px_rgba(0,0,0,0.08)] border-black/10 ">
-                      <h1 className="font-semibold" >Tags</h1>
-                      <Table classNames={{"th":"bg-secondary/10",}}>
+                      <h1 className="font-semibold">Tags</h1>
+                      <Table classNames={{ th: "bg-secondary/10" }}>
                         <TableHeader>
                           <TableColumn align="center">Tag</TableColumn>
                           <TableColumn align="center">Main color</TableColumn>
@@ -371,7 +417,8 @@ export default function AnalyticsPage() {
                                 <TableCell>
                                   <label>{tag}</label>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell >
+                                <div className="flex items-center justify-center  space-x-2">
                                   <PopoverColorPicker
                                     color={tagSetting[tag].color.main}
                                     onChange={(c) => {
@@ -382,8 +429,11 @@ export default function AnalyticsPage() {
                                       setTagSetting(newTagSetting);
                                     }}
                                   ></PopoverColorPicker>
+                                  <label className="text-black/70 uppercase text-sm">{rgbaToHex(tagSetting[tag].color.main)}</label>
+                                </div>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell >
+                                <div className="flex items-center justify-center space-x-2">
                                   <PopoverColorPicker
                                     color={tagSetting[tag].color.footprint}
                                     onChange={(c) => {
@@ -396,6 +446,8 @@ export default function AnalyticsPage() {
                                       setTagSetting(newTagSetting);
                                     }}
                                   ></PopoverColorPicker>
+                                  <label className="text-black/70 uppercase text-sm">{rgbaToHex(tagSetting[tag].color.footprint)}</label>
+                                </div>
                                 </TableCell>
                               </TableRow>
                             );
@@ -408,7 +460,6 @@ export default function AnalyticsPage() {
                     <Button variant="light" onPress={onClose}>
                       Close
                     </Button>
-                   
                   </ModalFooter>
                 </>
               )}
@@ -434,7 +485,9 @@ export default function AnalyticsPage() {
                   <>
                     <button
                       type="button"
-                      className={`absolute top-5 shadow left-5 rounded-full hover:scale-110 hover:bg-gray-50 p-2 hover:text-unitn-grey z-[110] ${isHyperbolasFull?"hidden":''}`}
+                      className={`absolute top-5 shadow left-5 rounded-full hover:scale-110 hover:bg-gray-50 p-2 hover:text-unitn-grey z-[110] ${
+                        isHyperbolasFull ? "hidden" : ""
+                      }`}
                       onClick={() => {
                         setIsFullScreen(!isFullScreen);
                       }}
@@ -445,7 +498,9 @@ export default function AnalyticsPage() {
                         <ArrowsPointingOutIcon className="h-6 w-6"></ArrowsPointingOutIcon>
                       )}
                     </button>
-                    <RecordingButton hidden={isHyperbolasFull}></RecordingButton>
+                    <RecordingButton
+                      hidden={isHyperbolasFull}
+                    ></RecordingButton>
                     <div
                       className={
                         isFullScreen
@@ -635,12 +690,10 @@ export default function AnalyticsPage() {
                 Show Hyperbolas
               </Button>
               <Modal
-                backdrop="blur" 
-                classNames={
-                    {
-                        backdrop: " bg-zinc-900/30 backdrop-blur-sm",
-                    }
-                }
+                backdrop="blur"
+                classNames={{
+                  backdrop: " bg-zinc-900/30 backdrop-blur-sm",
+                }}
                 isOpen={isAncorsOpen}
                 onOpenChange={() => setIsAncorsOpen(!isAncorsOpen)}
                 isDismissable={false}
@@ -690,8 +743,8 @@ export default function AnalyticsPage() {
 
             <div className="flex-wrap flex-col h-full  space-y-3 items-center justify-center my-3 mx-5  ">
               {isDetailsOn && positionDetails ? (
-                <PositionDetails></PositionDetails>)
-               : (
+                <PositionDetails></PositionDetails>
+              ) : (
                 <div className="text-center text-gray-500">
                   No details available
                 </div>

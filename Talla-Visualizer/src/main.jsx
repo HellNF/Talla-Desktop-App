@@ -20,7 +20,7 @@ const router = (
     <Routes>
       {/* <Route path="/" element={<Home />} /> */}
       <Route path="/upload" element={<UploadPage />} />
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/" element={<Dashboard />} />
     </Routes>
   </HashRouter>
 );
