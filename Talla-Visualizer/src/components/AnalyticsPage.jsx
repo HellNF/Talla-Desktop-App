@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Splitter, SplitterPanel } from "primereact/splitter";
+import { InputSwitch } from "primereact/inputswitch";
 import { useDashboard } from "../store/FileHandlerContext.jsx";
 import { Checkbox } from "primereact/checkbox";
 import SpeedDropDown from "./SpeedDropDown.jsx";
@@ -7,6 +8,7 @@ import Spinner from "./Spinner.jsx";
 import TagShowBar from "./TagShowBar.jsx";
 import RecordingButton from "./RecordingButton.jsx";
 import HyperboalasChart from "./HyperbolasChart.jsx";
+import Switch from "./Switch.jsx";
 import {
   AdjustmentsVerticalIcon,
   PlayIcon,
@@ -114,6 +116,11 @@ export default function AnalyticsPage() {
     currentFileData,
     setCurrentFileData,
     setAncorFileData,
+    xRange,
+    setXRange,
+    yRange,
+    setYRange,
+    Zoom, setZoom,Pan,setPan,Select,setSelect,Lasso,setLasso,ZoomIn,setZoomIn,ZoomOut,setZoomOut,Autoscale,setAutoscale,ResetScale,setResetScale 
   } = useGraph();
 
   const [isHyperbolasFull, setIsHyperbolasFull] = useState(false);
@@ -253,7 +260,7 @@ export default function AnalyticsPage() {
         <div className="flex flex-row items-center space-x-5">
           <button
             type="button"
-            className="rounded-lg bg-secondary px-3 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-details-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
+            className="rounded-lg bg-secondary px-3 py-2 text-xs sm:text-sm font-semibold text-white shadow-[0px_1px_5px_0px_rgba(0,0,0,0.08)] shadow-gray-400 hover:bg-details-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
             onClick={() => {
               selectFile("");
               setIsSet(false);
@@ -266,7 +273,7 @@ export default function AnalyticsPage() {
           </button>
           <button
             type="button"
-            className="rounded-lg bg-secondary px-3 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-details-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
+            className="rounded-lg bg-secondary px-3 py-2 text-xs sm:text-sm font-semibold text-white shadow-[0px_1px_5px_0px_rgba(0,0,0,0.08)] shadow-gray-400 hover:bg-details-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
             onClick={() => {
               setIsDetailsOn(!isDetailsOn);
             }}
@@ -276,7 +283,7 @@ export default function AnalyticsPage() {
 
           <Button
             onPress={onOpen}
-            className="rounded-full bg-secondary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-details-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
+            className="rounded-full bg-secondary px-3 py-2 text-sm font-semibold text-white shadow-[0px_1px_5px_0px_rgba(0,0,0,0.08)] shadow-gray-400 hover:bg-details-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
           >
             <AdjustmentsVerticalIcon className="w-6 h-6"></AdjustmentsVerticalIcon>
           </Button>
@@ -317,6 +324,7 @@ export default function AnalyticsPage() {
                           type="ancors"
                         />
                       </div>
+
                       <div>
                         <label className="font-semibold">
                           Select the env element file:
@@ -327,6 +335,91 @@ export default function AnalyticsPage() {
                           deep={true}
                           type="elements"
                         />
+                      </div>
+                    </div>
+                    <div className="bg-primary p-4 rounded-md shadow-[0px_1px_34px_0px_rgba(0,0,0,0.08)] border-black/10 space-y-2">
+                      <h1 className="font-semibold">Chart options</h1>
+                      <div>
+                        <div className="ml-6 fllex flex-col space-y-2">
+                          <label className="font-semibold">Layout view:</label>
+                          <div className="flex items-center justify-evenly">
+                            <div className="flex flex-row items-center space-x-5">
+                              <label className="font-medium">x:</label>
+                              <input
+                                type="number"
+                                value={xRange[0]}
+                                className=" w-16 h-7 rounded-md focus:right-1 focus:ring-details-light-blue focus:border-none border-black/10"
+                                onChange={(e) =>
+                                  setXRange([e.target.value, xRange[1]])
+                                }
+                              ></input>
+                              <input
+                                type="number"
+                                value={xRange[1]}
+                                onChange={(e) =>
+                                  setXRange([xRange[0], e.target.value])
+                                }
+                                className=" w-16 h-7 rounded-md focus:right-1 focus:ring-details-light-blue focus:border-none border-black/10"
+                              ></input>
+                            </div>
+                            <div className="flex flex-row items-center space-x-5">
+                              <label className="font-medium">y:</label>
+                              <input
+                                type="number"
+                                value={yRange[0]}
+                                className=" w-16 h-7 rounded-md focus:right-1 focus:ring-details-light-blue focus:border-none border-black/10"
+                                onChange={(e) =>
+                                  setYRange([e.target.value, yRange[1]])
+                                }
+                              ></input>
+                              <input
+                                type="number"
+                                value={yRange[1]}
+                                onChange={(e) =>
+                                  setYRange([yRange[0], e.target.value])
+                                }
+                                className=" w-16 h-7 rounded-md focus:right-1 focus:ring-details-light-blue focus:border-none border-black/10"
+                              ></input>
+                            </div>
+                          </div>
+                          <label className="font-semibold">
+                            Chart ModeBar buttons
+                          </label>
+                          <div className="grid grid-cols-4 gap-4">
+                            <div className="flex items-center space-x-2">
+                              <InputSwitch checked={Zoom} onChange={() => setZoom(!Zoom)} />
+                              <label>Zoom</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <InputSwitch checked={Pan} onChange={()=>setPan(!Pan)}/>
+                              <label>Pan</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <InputSwitch checked={Lasso} onChange={()=>setLasso(!Lasso)}/>
+                              <label>Lasso</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <InputSwitch checked={Select} onChange={()=>setSelect(!Select)}/>
+                              <label>Select</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <InputSwitch checked={ZoomIn} onChange={()=>setZoomIn(!ZoomIn)}/>
+                              <label>Zoom in</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <InputSwitch checked={ZoomOut} onChange={()=>setZoomOut(!ZoomOut)}/>
+                              <label>Zoom out</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <InputSwitch checked={Autoscale} onChange={()=>setAutoscale(!Autoscale)}/>
+                              <label>Autoscale</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <InputSwitch checked={ResetScale} onChange={()=>setResetScale(!ResetScale)}/>
+                              <label>Reset scale</label>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <div className="bg-primary p-4 rounded-md shadow-[0px_1px_34px_0px_rgba(0,0,0,0.08)] border-black/10 ">
@@ -346,7 +439,7 @@ export default function AnalyticsPage() {
                                   <TableCell>
                                     <label>{shape.label.text}</label>
                                   </TableCell>
-                                  <TableCell >
+                                  <TableCell>
                                     <div className="flex items-center justify-center  space-x-2">
                                       <PopoverColorPicker
                                         color={shape.fillcolor}
@@ -361,28 +454,31 @@ export default function AnalyticsPage() {
                                           setShapes(newShapes);
                                         }}
                                       ></PopoverColorPicker>
-                                      <label className="text-black/70 uppercase text-sm">{rgbaToHex(shape.fillcolor)}</label>
+                                      <label className="text-black/70 uppercase text-sm">
+                                        {rgbaToHex(shape.fillcolor)}
+                                      </label>
                                     </div>
-                                    
                                   </TableCell>
-                                  <TableCell >
-                                  <div className="flex items-center justify-center  space-x-2">
-                                    <PopoverColorPicker
-                                      color={shape.line.color}
-                                      onChange={(c) => {
-                                        console.log(c);
+                                  <TableCell>
+                                    <div className="flex items-center justify-center  space-x-2">
+                                      <PopoverColorPicker
+                                        color={shape.line.color}
+                                        onChange={(c) => {
+                                          console.log(c);
 
-                                        let newShapes = [...shapes];
-                                        newShapes[index].line.color = `rgba(${
-                                          c.r
-                                        },${c.g},${c.b},${
-                                          isNaN(c.a) ? 1 : c.a
-                                        })`;
-                                        setShapes(newShapes);
-                                      }}
-                                    ></PopoverColorPicker>
-                                    <label className="text-black/70 uppercase text-sm">{rgbaToHex(shape.line.color)}</label>
-                                  </div>
+                                          let newShapes = [...shapes];
+                                          newShapes[index].line.color = `rgba(${
+                                            c.r
+                                          },${c.g},${c.b},${
+                                            isNaN(c.a) ? 1 : c.a
+                                          })`;
+                                          setShapes(newShapes);
+                                        }}
+                                      ></PopoverColorPicker>
+                                      <label className="text-black/70 uppercase text-sm">
+                                        {rgbaToHex(shape.line.color)}
+                                      </label>
+                                    </div>
                                   </TableCell>
                                   <TableCell>
                                     <Checkbox
@@ -417,37 +513,45 @@ export default function AnalyticsPage() {
                                 <TableCell>
                                   <label>{tag}</label>
                                 </TableCell>
-                                <TableCell >
-                                <div className="flex items-center justify-center  space-x-2">
-                                  <PopoverColorPicker
-                                    color={tagSetting[tag].color.main}
-                                    onChange={(c) => {
-                                      let newTagSetting = { ...tagSetting };
-                                      newTagSetting[tag].color.main = `rgba(${
-                                        c.r
-                                      },${c.g},${c.b},${isNaN(c.a) ? 1 : c.a})`;
-                                      setTagSetting(newTagSetting);
-                                    }}
-                                  ></PopoverColorPicker>
-                                  <label className="text-black/70 uppercase text-sm">{rgbaToHex(tagSetting[tag].color.main)}</label>
-                                </div>
+                                <TableCell>
+                                  <div className="flex items-center justify-center  space-x-2">
+                                    <PopoverColorPicker
+                                      color={tagSetting[tag].color.main}
+                                      onChange={(c) => {
+                                        let newTagSetting = { ...tagSetting };
+                                        newTagSetting[tag].color.main = `rgba(${
+                                          c.r
+                                        },${c.g},${c.b},${
+                                          isNaN(c.a) ? 1 : c.a
+                                        })`;
+                                        setTagSetting(newTagSetting);
+                                      }}
+                                    ></PopoverColorPicker>
+                                    <label className="text-black/70 uppercase text-sm">
+                                      {rgbaToHex(tagSetting[tag].color.main)}
+                                    </label>
+                                  </div>
                                 </TableCell>
-                                <TableCell >
-                                <div className="flex items-center justify-center space-x-2">
-                                  <PopoverColorPicker
-                                    color={tagSetting[tag].color.footprint}
-                                    onChange={(c) => {
-                                      let newTagSetting = { ...tagSetting };
-                                      newTagSetting[
-                                        tag
-                                      ].color.footprint = `rgba(${c.r},${c.g},${
-                                        c.b
-                                      },${isNaN(c.a) ? 1 : c.a})`;
-                                      setTagSetting(newTagSetting);
-                                    }}
-                                  ></PopoverColorPicker>
-                                  <label className="text-black/70 uppercase text-sm">{rgbaToHex(tagSetting[tag].color.footprint)}</label>
-                                </div>
+                                <TableCell>
+                                  <div className="flex items-center justify-center space-x-2">
+                                    <PopoverColorPicker
+                                      color={tagSetting[tag].color.footprint}
+                                      onChange={(c) => {
+                                        let newTagSetting = { ...tagSetting };
+                                        newTagSetting[
+                                          tag
+                                        ].color.footprint = `rgba(${c.r},${
+                                          c.g
+                                        },${c.b},${isNaN(c.a) ? 1 : c.a})`;
+                                        setTagSetting(newTagSetting);
+                                      }}
+                                    ></PopoverColorPicker>
+                                    <label className="text-black/70 uppercase text-sm">
+                                      {rgbaToHex(
+                                        tagSetting[tag].color.footprint
+                                      )}
+                                    </label>
+                                  </div>
                                 </TableCell>
                               </TableRow>
                             );
@@ -741,7 +845,7 @@ export default function AnalyticsPage() {
               </Modal>
             </div>
 
-            <div className="flex-wrap flex-col h-full  space-y-3 items-center justify-center my-3 mx-5  ">
+            <div className="flex-wrap flex-col h-full max-h-[80%] space-y-3 items-center justify-center my-3 mx-5  overflow-y-scroll hide-scrollbar">
               {isDetailsOn && positionDetails ? (
                 <PositionDetails></PositionDetails>
               ) : (

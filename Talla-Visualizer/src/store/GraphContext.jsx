@@ -14,12 +14,20 @@ export const GraphProvider = ({ children }) => {
   const [play, setPlay] = useState(false);
   const [xRange, setXRange] = useState([-50,50]);
   const [yRange, setYRange] = useState([-10,30]);
+  const [Zoom, setZoom] = useState(false);
+  const [Pan, setPan] = useState(true);
+  const [Lasso, setLasso] = useState(false);
+  const [Select, setSelect] = useState(false);
+  const [ZoomIn, setZoomIn] = useState(true);
+  const [ZoomOut, setZoomOut] = useState(true);
+  const [ResetScale, setResetScale] = useState(true);
+  const [Autoscale, setAutoscale] = useState(true);
   
 
   
 
   return (
-    <GraphContext.Provider value={{ currentFileData,setCurrentFileData,envObjFileData,setEnvObjFileData,currentFrame, setCurrentFrame,play, setPlay, currentFileIndexLoaded, setCurrentFileIndexLoaded,positionDetails, setPositionDetails,xRange, setXRange,yRange, setYRange,ancorFileData, setAncorFileData}}>
+    <GraphContext.Provider value={{ currentFileData,setCurrentFileData,envObjFileData,setEnvObjFileData,currentFrame, setCurrentFrame,play, setPlay, currentFileIndexLoaded, setCurrentFileIndexLoaded,positionDetails, setPositionDetails,xRange, setXRange,yRange, setYRange,ancorFileData, setAncorFileData,Zoom, setZoom,Pan,setPan,Select,setSelect,Lasso,setLasso,ZoomIn,setZoomIn,ZoomOut,setZoomOut,Autoscale,setAutoscale,ResetScale,setResetScale }}>
       {children}
     </GraphContext.Provider>
   );

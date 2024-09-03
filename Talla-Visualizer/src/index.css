@@ -25,3 +25,8 @@ html {
   .blinking-icon {
     animation: blink 1s infinite;
   }
+
+  .p-inputswitch-input{
+    width: 100%;
+    height: 100%;
+  }

@@ -50,6 +50,14 @@ const createWindow = () => {
       });
     });
   }
+  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        "Content-Security-Policy": ["default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval';"]
+      }
+    });
+  });
   // mainWindow.webContents.openDevTools();
 };
 
@@ -262,6 +270,9 @@ ipcMain.handle('LoadCSV', async (event, prop) => {
   const data = fs.readFileSync(indexFile, 'utf8');
   return JSON.parse(data);
 });
+
+
+
 
 ipcMain.handle('LoadCSV:readFile', async (event, file) => {
   try {

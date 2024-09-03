@@ -33,12 +33,42 @@ function Chart() {
     setYRange,
     xRange,
     setXRange,
-    play 
+    play,
+    Zoom, setZoom,Pan,setPan,Select,setSelect,Lasso,setLasso,ZoomIn,setZoomIn,ZoomOut,setZoomOut,Autoscale,setAutoscale,ResetScale,setResetScale 
   } = useGraph();
   const { width, height, ref } = useResizeDetector();
   const [revision, setRevision] = useState(0);
   const { shapes, setShapes, tagSetting, setTagSetting } = useViewSettings();
   const [plotData, setPlotData] = useState([]);
+  const [modebarBtnToRemove, setModebarBtnToRemove] = useState([]);
+  useEffect(() => {
+    const tempRmlist = [];
+    if(!Zoom){
+      tempRmlist.push("zoom2d");
+    }
+    if(!Pan){
+      tempRmlist.push("pan2d");
+    }
+    if(!Select){
+      tempRmlist.push("select2d");
+    }
+    if(!Lasso){
+      tempRmlist.push("lasso2d");
+    }
+    if(!ZoomIn){
+      tempRmlist.push("zoomIn2d");
+    }
+    if(!ZoomOut){
+      tempRmlist.push("zoomOut2d");
+    }
+    if(!ResetScale){
+      tempRmlist.push("resetScale2d");
+    }
+    if(!Autoscale){
+      tempRmlist.push("autoScale2d");
+    }
+    setModebarBtnToRemove(tempRmlist);
+  },[Zoom,Pan,Select,Lasso,ZoomIn,ZoomOut,Autoscale,ResetScale]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -249,7 +279,14 @@ function Chart() {
           xaxis: { title: "X", range: xRange},
           yaxis: { title: "Y", range: yRange },
         }}
-        config={{ responsive: true, scrollZoom: true, displaylogo: false }}
+        config={{ responsive: true, scrollZoom: true, displaylogo: false,modeBarButtonsToRemove: modebarBtnToRemove,toImageButtonOptions:{
+          format: 'png', // one of png, svg, jpeg, webp
+          filename: 'ChartSnapshot',
+          height: 1080,
+          width: 1920,
+          scale: 1 // Multiply title/legend/axis/canvas sizes by this factor
+        }}}
+        
         style={{ width: "100%", height: "100%" }}
         useResizeHandler={true}
         revision={revision}
