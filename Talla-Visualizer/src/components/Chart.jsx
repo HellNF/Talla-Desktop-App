@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useState, useMemo } from "react";
+
 import Plot from "react-plotly.js";
+
 import { useResizeDetector } from "react-resize-detector";
 import { useDashboard } from "../store/FileHandlerContext.jsx";
 import { useMode } from "../store/ModeContext.jsx";
@@ -12,11 +14,21 @@ function getRandomColor(main = true) {
   const b = Math.floor(Math.random() * 256);
   const a = Math.random().toFixed(2);
 
-  return { main: `rgba(${r}, ${g}, ${b}, 1)`, footprint: `rgba(${r}, ${g}, ${b}, 0.5)` };
+  return {
+    main: `rgba(${r}, ${g}, ${b}, 1)`,
+    footprint: `rgba(${r}, ${g}, ${b}, 0.5)`,
+  };
 }
 
 function Chart() {
-  const { currentFile, envObjFile, index, currentTags, isDetailsOn, setIsDetailsOn } = useDashboard();
+  const {
+    currentFile,
+    envObjFile,
+    index,
+    currentTags,
+    isDetailsOn,
+    setIsDetailsOn,
+  } = useDashboard();
   const { isOnline } = useMode();
   const {
     currentFileData,
@@ -34,7 +46,26 @@ function Chart() {
     xRange,
     setXRange,
     play,
-    Zoom, setZoom,Pan,setPan,Select,setSelect,Lasso,setLasso,ZoomIn,setZoomIn,ZoomOut,setZoomOut,Autoscale,setAutoscale,ResetScale,setResetScale 
+    Zoom,
+    setZoom,
+    Pan,
+    setPan,
+    Select,
+    setSelect,
+    Lasso,
+    setLasso,
+    ZoomIn,
+    setZoomIn,
+    ZoomOut,
+    setZoomOut,
+    Autoscale,
+    setAutoscale,
+    ResetScale,
+    setResetScale,
+    xAutorange,
+    setXAutorange,
+    yAutorange,
+    setYAutorange,
   } = useGraph();
   const { width, height, ref } = useResizeDetector();
   const [revision, setRevision] = useState(0);
@@ -43,37 +74,40 @@ function Chart() {
   const [modebarBtnToRemove, setModebarBtnToRemove] = useState([]);
   useEffect(() => {
     const tempRmlist = [];
-    if(!Zoom){
+    if (!Zoom) {
       tempRmlist.push("zoom2d");
     }
-    if(!Pan){
+    if (!Pan) {
       tempRmlist.push("pan2d");
     }
-    if(!Select){
+    if (!Select) {
       tempRmlist.push("select2d");
     }
-    if(!Lasso){
+    if (!Lasso) {
       tempRmlist.push("lasso2d");
     }
-    if(!ZoomIn){
+    if (!ZoomIn) {
       tempRmlist.push("zoomIn2d");
     }
-    if(!ZoomOut){
+    if (!ZoomOut) {
       tempRmlist.push("zoomOut2d");
     }
-    if(!ResetScale){
+    if (!ResetScale) {
       tempRmlist.push("resetScale2d");
     }
-    if(!Autoscale){
+    if (!Autoscale) {
       tempRmlist.push("autoScale2d");
     }
     setModebarBtnToRemove(tempRmlist);
-  },[Zoom,Pan,Select,Lasso,ZoomIn,ZoomOut,Autoscale,ResetScale]);
+  }, [Zoom, Pan, Select, Lasso, ZoomIn, ZoomOut, Autoscale, ResetScale]);
 
   useEffect(() => {
     const fetchData = async () => {
       if (!isOnline && envObjFile !== null) {
-        const data = await window.electronAPI.invoke("graph:getElementsData", envObjFile);
+        const data = await window.electronAPI.invoke(
+          "graph:getElementsData",
+          envObjFile
+        );
         setEnvObjFileData(data);
 
         const newShapes = data
@@ -137,7 +171,10 @@ function Chart() {
         index.fileIndex !== undefined &&
         index.fileIndex.length > 0
       ) {
-        const data = await window.electronAPI.invoke("LoadCSV:readFile", index.fileIndex[0].file);
+        const data = await window.electronAPI.invoke(
+          "LoadCSV:readFile",
+          index.fileIndex[0].file
+        );
         setCurrentFileIndexLoaded([0]);
         setCurrentFileData(data);
       }
@@ -178,7 +215,10 @@ function Chart() {
               index?.fileIndex[i].end_frame >= currentFrame
             ) {
               setCurrentFileIndexLoaded([i]);
-              const data = await window.electronAPI.invoke("LoadCSV:readFile", index.fileIndex[i].file);
+              const data = await window.electronAPI.invoke(
+                "LoadCSV:readFile",
+                index.fileIndex[i].file
+              );
               setCurrentFileData(data);
               break;
             }
@@ -216,15 +256,17 @@ function Chart() {
           },
           frame: currentFrame,
         };
-        currentFileData[currentFrame].filter((item) => item.tag_id === tag).forEach((item) => {
-          if (item.label === "main") {
-            main.x.push(item.x_kf);
-            main.y.push(item.y_kf);
-          } else {
-            footprints.x.push(item.x_kf);
-            footprints.y.push(item.y_kf);
-          }
-        });
+        currentFileData[currentFrame]
+          .filter((item) => item.tag_id === tag)
+          .forEach((item) => {
+            if (item.label === "main") {
+              main.x.push(item.x_kf);
+              main.y.push(item.y_kf);
+            } else {
+              footprints.x.push(item.x_kf);
+              footprints.y.push(item.y_kf);
+            }
+          });
 
         if (main.x.length > 0) {
           pd.push(main);
@@ -235,8 +277,7 @@ function Chart() {
       }
       setPlotData(pd);
       setRevision((prev) => prev + 1);
-    }
-    else{
+    } else {
       setPlotData([]);
     }
   }, [currentFrame, currentFileData, currentTags, tagSetting]);
@@ -245,13 +286,14 @@ function Chart() {
     <div className="w-full h-full" ref={ref}>
       <Plot
         onRelayout={(data) => {
-          if(data["xaxis.range[0]"] && data["xaxis.range[1"]){
+          
+
+          if (data["xaxis.range[0]"] && data["xaxis.range[1"]) {
             setXRange([data["xaxis.range[0]"], data["xaxis.range[1]"]]);
           }
-          if(data["yaxis.range[0]"] && data["yaxis.range[1"]){
+          if (data["yaxis.range[0]"] && data["yaxis.range[1"]) {
             setYRange([data["yaxis.range[0]"], data["yaxis.range[1]"]]);
           }
-          
         }}
         onClick={(data) => {
           //console.log(data);
@@ -259,11 +301,11 @@ function Chart() {
             const point = data.points[0];
             const tag = point.data.name.split(" ")[0];
             const frame = point.data.frame;
-            console.log(tag, frame, point,);
+            console.log(tag, frame, point);
             for (let i of currentFileData[frame]) {
               if (i.tag_id === tag && i.x_kf == point.x && i.y_kf == point.y) {
                 setPositionDetails(i);
-                
+
                 break;
               }
             }
@@ -275,18 +317,36 @@ function Chart() {
           autosize: true,
           title: "Positions of a Person",
           shapes: shapes,
-          legend: { x: 1, xanchor: "right", y: 1 ,visible: !play},
-          xaxis: { title: "X", range: xRange},
-          yaxis: { title: "Y", range: yRange },
+          legend: { x: 1, xanchor: "right", y: 1, visible: !play },
+          xaxis: { title: "X", range: xRange, autorange: xAutorange },
+          yaxis: { title: "Y", range: yRange, autorange: yAutorange },
         }}
-        config={{ responsive: true, scrollZoom: true, displaylogo: false,modeBarButtonsToRemove: modebarBtnToRemove,toImageButtonOptions:{
-          format: 'png', // one of png, svg, jpeg, webp
-          filename: 'ChartSnapshot',
-          height: 1080,
-          width: 1920,
-          scale: 1 // Multiply title/legend/axis/canvas sizes by this factor
-        }}}
-        
+        config={{
+          responsive: true,
+          scrollZoom: true,
+          displaylogo: false,
+          modeBarButtonsToRemove: modebarBtnToRemove,
+          modeBarButtonsToAdd: [
+            {
+              name: "CustomAutosize",
+              icon: { width: 928.6,
+                height: 1000,
+                path: 'm786 296v-267q0-15-11-26t-25-10h-214v214h-143v-214h-214q-15 0-25 10t-11 26v267q0 1 0 2t0 2l321 264 321-264q1-1 1-4z m124 39l-34-41q-5-5-12-6h-2q-7 0-12 3l-386 322-386-322q-7-4-13-4-7 2-12 7l-35 41q-4 5-3 13t6 12l401 334q18 15 42 15t43-15l136-114v109q0 8 5 13t13 5h107q8 0 13-5t5-13v-227l122-102q5-5 6-12t-4-13z',
+                transform: 'matrix(1 0 0 -1 0 850)'},
+              click: function () {
+                setXRange([-25,25]);
+                setYRange([-5,25]);
+              },
+            },
+          ],
+          toImageButtonOptions: {
+            format: "png", // one of png, svg, jpeg, webp
+            filename: "ChartSnapshot",
+            height: 1080,
+            width: 1920,
+            scale: 1, // Multiply title/legend/axis/canvas sizes by this factor
+          },
+        }}
         style={{ width: "100%", height: "100%" }}
         useResizeHandler={true}
         revision={revision}

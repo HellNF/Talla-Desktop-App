@@ -120,7 +120,26 @@ export default function AnalyticsPage() {
     setXRange,
     yRange,
     setYRange,
-    Zoom, setZoom,Pan,setPan,Select,setSelect,Lasso,setLasso,ZoomIn,setZoomIn,ZoomOut,setZoomOut,Autoscale,setAutoscale,ResetScale,setResetScale 
+    Zoom,
+    setZoom,
+    Pan,
+    setPan,
+    Select,
+    setSelect,
+    Lasso,
+    setLasso,
+    ZoomIn,
+    setZoomIn,
+    ZoomOut,
+    setZoomOut,
+    Autoscale,
+    setAutoscale,
+    ResetScale,
+    setResetScale,
+    xAutorange,
+    setXAutorange,
+    yAutorange,
+    setYAutorange,
   } = useGraph();
 
   const [isHyperbolasFull, setIsHyperbolasFull] = useState(false);
@@ -298,7 +317,7 @@ export default function AnalyticsPage() {
             isDismissable={false}
             placement="center"
           >
-            <ModalContent className="bg-dirty-white border border-details-light-blue/80 shadow-lg rounded-lg h-2/3 w-1/2 text-unitn-grey hide-scrollbar overflow-scroll ">
+            <ModalContent className="bg-dirty-white border border-details-light-blue/80 shadow-lg rounded-lg h-5/6 w-2/3 text-unitn-grey hide-scrollbar overflow-scroll ">
               {(onClose) => (
                 <>
                   <ModalHeader className="flex flex-row gap-1 justify-between">
@@ -321,6 +340,7 @@ export default function AnalyticsPage() {
                           className="text-black border "
                           handleTreeSelectChange={handleTreeSelectChangeAncors}
                           deep={true}
+                          alreadySelected={ancorsFile}
                           type="ancors"
                         />
                       </div>
@@ -333,6 +353,7 @@ export default function AnalyticsPage() {
                           className="text-black border "
                           handleTreeSelectChange={handleTreeSelectChange}
                           deep={true}
+                          alreadySelected={envObjFile}
                           type="elements"
                         />
                       </div>
@@ -343,43 +364,62 @@ export default function AnalyticsPage() {
                         <div className="ml-6 fllex flex-col space-y-2">
                           <label className="font-semibold">Layout view:</label>
                           <div className="flex items-center justify-evenly">
-                            <div className="flex flex-row items-center space-x-5">
-                              <label className="font-medium">x:</label>
-                              <input
-                                type="number"
-                                value={xRange[0]}
-                                className=" w-16 h-7 rounded-md focus:right-1 focus:ring-details-light-blue focus:border-none border-black/10"
-                                onChange={(e) =>
-                                  setXRange([e.target.value, xRange[1]])
-                                }
-                              ></input>
-                              <input
-                                type="number"
-                                value={xRange[1]}
-                                onChange={(e) =>
-                                  setXRange([xRange[0], e.target.value])
-                                }
-                                className=" w-16 h-7 rounded-md focus:right-1 focus:ring-details-light-blue focus:border-none border-black/10"
-                              ></input>
+                            <div className="flex flex-col space-y-2">
+                              <div className="flex flex-row items-center space-x-5">
+                                <label className="font-medium">x:</label>
+                                <input
+                                  type="number"
+                                  value={xRange[0]}
+                                  className=" w-16 h-7 rounded-md focus:right-1 focus:ring-details-light-blue focus:border-none border-black/10"
+                                  onChange={(e) =>
+                                    setXRange([e.target.value, xRange[1]])
+                                  }
+                                ></input>
+                                <input
+                                  type="number"
+                                  value={xRange[1]}
+                                  onChange={(e) =>
+                                    setXRange([xRange[0], e.target.value])
+                                  }
+                                  className=" w-16 h-7 rounded-md focus:right-1 focus:ring-details-light-blue focus:border-none border-black/10"
+                                ></input>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <InputSwitch
+                                  checked={xAutorange}
+                                  onChange={() => setXAutorange(!xAutorange)}
+                                ></InputSwitch>
+                                <label>xAutorange</label>
+                              </div>
                             </div>
-                            <div className="flex flex-row items-center space-x-5">
-                              <label className="font-medium">y:</label>
-                              <input
-                                type="number"
-                                value={yRange[0]}
-                                className=" w-16 h-7 rounded-md focus:right-1 focus:ring-details-light-blue focus:border-none border-black/10"
-                                onChange={(e) =>
-                                  setYRange([e.target.value, yRange[1]])
-                                }
-                              ></input>
-                              <input
-                                type="number"
-                                value={yRange[1]}
-                                onChange={(e) =>
-                                  setYRange([yRange[0], e.target.value])
-                                }
-                                className=" w-16 h-7 rounded-md focus:right-1 focus:ring-details-light-blue focus:border-none border-black/10"
-                              ></input>
+
+                            <div className="flex flex-col space-y-2">
+                              <div className="flex flex-row items-center space-x-5">
+                                <label className="font-medium">y:</label>
+                                <input
+                                  type="number"
+                                  value={yRange[0]}
+                                  className=" w-16 h-7 rounded-md focus:right-1 focus:ring-details-light-blue focus:border-none border-black/10"
+                                  onChange={(e) =>
+                                    setYRange([e.target.value, yRange[1]])
+                                  }
+                                ></input>
+                                <input
+                                  type="number"
+                                  value={yRange[1]}
+                                  onChange={(e) =>
+                                    setYRange([yRange[0], e.target.value])
+                                  }
+                                  className=" w-16 h-7 rounded-md focus:right-1 focus:ring-details-light-blue focus:border-none border-black/10"
+                                ></input>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <InputSwitch
+                                  checked={yAutorange}
+                                  onChange={() => setYAutorange(!yAutorange)}
+                                ></InputSwitch>
+                                <label>yAutorange</label>
+                              </div>
                             </div>
                           </div>
                           <label className="font-semibold">
@@ -387,35 +427,59 @@ export default function AnalyticsPage() {
                           </label>
                           <div className="grid grid-cols-4 gap-4">
                             <div className="flex items-center space-x-2">
-                              <InputSwitch checked={Zoom} onChange={() => setZoom(!Zoom)} />
+                              <InputSwitch
+                                checked={Zoom}
+                                onChange={() => setZoom(!Zoom)}
+                              />
                               <label>Zoom</label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <InputSwitch checked={Pan} onChange={()=>setPan(!Pan)}/>
+                              <InputSwitch
+                                checked={Pan}
+                                onChange={() => setPan(!Pan)}
+                              />
                               <label>Pan</label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <InputSwitch checked={Lasso} onChange={()=>setLasso(!Lasso)}/>
+                              <InputSwitch
+                                checked={Lasso}
+                                onChange={() => setLasso(!Lasso)}
+                              />
                               <label>Lasso</label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <InputSwitch checked={Select} onChange={()=>setSelect(!Select)}/>
+                              <InputSwitch
+                                checked={Select}
+                                onChange={() => setSelect(!Select)}
+                              />
                               <label>Select</label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <InputSwitch checked={ZoomIn} onChange={()=>setZoomIn(!ZoomIn)}/>
+                              <InputSwitch
+                                checked={ZoomIn}
+                                onChange={() => setZoomIn(!ZoomIn)}
+                              />
                               <label>Zoom in</label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <InputSwitch checked={ZoomOut} onChange={()=>setZoomOut(!ZoomOut)}/>
+                              <InputSwitch
+                                checked={ZoomOut}
+                                onChange={() => setZoomOut(!ZoomOut)}
+                              />
                               <label>Zoom out</label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <InputSwitch checked={Autoscale} onChange={()=>setAutoscale(!Autoscale)}/>
+                              <InputSwitch
+                                checked={Autoscale}
+                                onChange={() => setAutoscale(!Autoscale)}
+                              />
                               <label>Autoscale</label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <InputSwitch checked={ResetScale} onChange={()=>setResetScale(!ResetScale)}/>
+                              <InputSwitch
+                                checked={ResetScale}
+                                onChange={() => setResetScale(!ResetScale)}
+                              />
                               <label>Reset scale</label>
                             </div>
                           </div>
@@ -769,7 +833,7 @@ export default function AnalyticsPage() {
             id="details"
             size={20}
             minSize={1}
-            className={`overflow-y-scroll h-full shadow min-w-96 hide-scrollbar border-black/5 border rounded-lg ${
+            className={`overflow-y-scroll h-full shadow min-w-[400px] hide-scrollbar border-black/5 border rounded-lg ${
               isDetailsOn ? "" : "hidden"
             }`}
           >
@@ -801,12 +865,13 @@ export default function AnalyticsPage() {
                 isOpen={isAncorsOpen}
                 onOpenChange={() => setIsAncorsOpen(!isAncorsOpen)}
                 isDismissable={false}
+                hideCloseButton={true}
                 className="z-[150]"
                 placement="center"
               >
                 <ModalContent
                   className={`bg-primary border border-details-light-blue shadow-lg rounded-lg text-unitn-grey  ${
-                    isHyperbolasFull ? "h-full w-full" : "h-4/5 w-4/6"
+                    isHyperbolasFull ? "h-full w-full" : "h-5/6 w-2/3"
                   }  hide-scrollbar overflow-scroll `}
                 >
                   {(onClose) => (
@@ -815,9 +880,23 @@ export default function AnalyticsPage() {
                         <h1 className="font-bold text-lg text-unitn-grey">
                           Hyperbolas
                         </h1>
+
                         <button
                           type="button"
-                          className="shadow-md rounded-full hover:scale-110 hover:bg-gray-50 p-2 hover:text-unitn-grey z-[160]"
+                          className="m-2 p-1 rounded-full bg-primary shadow"
+                          onClick={onClose}
+                        >
+                          <XMarkIcon className="h-4 w-4"></XMarkIcon>
+                        </button>
+                      </ModalHeader>
+                      <ModalBody className="relative flex flex-col items-center">
+                        <div className="h-2/3 w-full">
+                          <HyperboalasChart></HyperboalasChart>
+                        </div>
+
+                        <button
+                          type="button"
+                          className=" absolute top-3 left-10 shadow-md rounded-full hover:scale-110 hover:bg-gray-50 p-2 hover:text-unitn-grey z-[160]"
                           onClick={() => setIsHyperbolasFull(!isHyperbolasFull)}
                         >
                           {isHyperbolasFull ? (
@@ -826,9 +905,184 @@ export default function AnalyticsPage() {
                             <ArrowsPointingOutIcon className="h-6 w-6"></ArrowsPointingOutIcon>
                           )}
                         </button>
-                      </ModalHeader>
-                      <ModalBody className="">
-                        <HyperboalasChart></HyperboalasChart>
+                        <div
+                          className={`mx-5 h-1/4 grid grid-cols-4 overflow-y-scroll custom-scrollbar p-3 ${
+                            isHyperbolasFull ? "hidden" : ""
+                          }`}
+                        >
+                          <label
+                            className="inline-flex flex-col w-full"
+                            aria-label="x_kf"
+                          >
+                            <span className="ml-2 font-semibold">x_kf:</span>
+                            <span className="ml-2 font-normal">
+                              {positionDetails?.x_kf}
+                            </span>
+                          </label>
+                          <label
+                            className="inline-flex flex-col w-full"
+                            aria-label="y_kf"
+                          >
+                            <span className="ml-2 font-semibold">y_kf:</span>
+                            <span className="ml-2 font-normal">
+                              {positionDetails?.y_kf}
+                            </span>
+                          </label>
+
+                          <label
+                            className="inline-flex flex-col w-full"
+                            aria-label="number of anchors"
+                          >
+                            <span className="ml-2 font-semibold">
+                              num_anchors:
+                            </span>
+                            <span className="ml-2 font-normal">
+                              {positionDetails?.num_anchors}
+                            </span>
+                          </label>
+                          <label
+                            className="inline-flex flex-col w-full"
+                            aria-label="anchor synchronization"
+                          >
+                            <span className="ml-2 font-semibold">
+                              anchor_synch:
+                            </span>
+                            <span className="ml-2 font-normal">
+                              {positionDetails?.anchor_synch}
+                            </span>
+                          </label>
+                          <label
+                            className="inline-flex flex-col w-full"
+                            aria-label="anchor reference"
+                          >
+                            <span className="ml-2 font-semibold">
+                              anchor_ref:
+                            </span>
+                            <span className="ml-2 font-normal">
+                              {positionDetails?.anchor_ref}
+                            </span>
+                          </label>
+                          <div className="">
+                            <label
+                              className="inline-flex flex-col w-full"
+                              aria-label="anchor receiver"
+                            >
+                              <span className="ml-2 font-semibold">
+                                anchor_rec:
+                              </span>
+                              <span className="ml-2 font-normal">
+                                {positionDetails?.anchor_rec}
+                              </span>
+                            </label>
+                          </div>
+
+                          <label
+                            className="inline-flex flex-col w-full"
+                            aria-label="synchronization epoch"
+                          >
+                            <span className="ml-2 font-semibold">
+                              synch_epoch:
+                            </span>
+                            <span className="ml-2 font-normal">
+                              {positionDetails?.synch_epoch}
+                            </span>
+                          </label>
+                          <label
+                            className="inline-flex flex-col w-full"
+                            aria-label="synchronization slot"
+                          >
+                            <span className="ml-2 font-semibold">
+                              synch_slot:
+                            </span>
+                            <span className="ml-2 font-normal">
+                              {positionDetails?.synch_slot}
+                            </span>
+                          </label>
+                          <label
+                            className="inline-flex flex-col w-full"
+                            aria-label="server poll delay"
+                          >
+                            <span className="ml-2 font-semibold">
+                              server_poll_delay:
+                            </span>
+                            <span className="ml-2 font-normal">
+                              {positionDetails?.server_poll_delay}
+                            </span>
+                          </label>
+                          <div className="col-span-4">
+                            <label
+                              className="inline-flex flex-col w-full"
+                              aria-label="tdoa distance"
+                            >
+                              <span className="ml-2 font-semibold">
+                                tdoa_dist:
+                              </span>
+                              <span className="ml-2 font-normal">
+                                {positionDetails?.tdoa_dist}
+                              </span>
+                            </label>
+                          </div>
+                          <label
+                            className="inline-flex flex-col w-full"
+                            aria-label="reference receiver power"
+                          >
+                            <span className="ml-2 font-semibold">
+                              ref_rxpwr:
+                            </span>
+                            <span className="ml-2 font-normal">
+                              {positionDetails?.ref_rxpwr}
+                            </span>
+                          </label>
+                          <label
+                            className="inline-flex flex-col w-full"
+                            aria-label="reference fp power"
+                          >
+                            <span className="ml-2 font-semibold">
+                              ref_fppwr:
+                            </span>
+                            <span className="ml-2 font-normal">
+                              {positionDetails?.ref_fppwr}
+                            </span>
+                          </label>
+                          <div className="col-span-2">
+                            <label
+                              className="inline-flex flex-col w-full"
+                              aria-label="receivers receiver power"
+                            >
+                              <span className="ml-2 font-semibold">
+                                receivers_rxpwr:
+                              </span>
+                              <span className="ml-2 font-normal">
+                                {positionDetails?.receivers_rxpwr}
+                              </span>
+                            </label>
+                          </div>
+
+                          <div className="col-span-2">
+                            <label
+                              className="inline-flex flex-col w-full"
+                              aria-label="receivers fp power"
+                            >
+                              <span className="ml-2 font-semibold">
+                                receivers_fppwr:
+                              </span>
+                              <span className="ml-2 font-normal">
+                                {positionDetails?.receivers_fppwr}
+                              </span>
+                            </label>
+                          </div>
+                          <label
+                            className="inline-flex flex-col w-full"
+                            aria-label="initial location"
+                          >
+                            <span className="ml-2 font-semibold">
+                              initial_loc:
+                            </span>
+                            <span className="ml-2 font-normal">
+                              {positionDetails?.initial_loc}
+                            </span>
+                          </label>
+                        </div>
                       </ModalBody>
                       <ModalFooter>
                         <Button
