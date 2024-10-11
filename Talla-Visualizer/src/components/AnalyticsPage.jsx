@@ -8,6 +8,7 @@ import Spinner from "./Spinner.jsx";
 import TagShowBar from "./TagShowBar.jsx";
 import RecordingButton from "./RecordingButton.jsx";
 import HyperboalasChart from "./HyperbolasChart.jsx";
+import LinkQualityChart from "./LinkQualityChart.jsx";
 import Switch from "./Switch.jsx";
 import {
   AdjustmentsVerticalIcon,
@@ -41,7 +42,7 @@ import TreeCampaignSelect from "./TreeCampaignSelect.jsx";
 import Chart from "./Chart.jsx";
 import { useViewSettings } from "../store/viewSettingsContext.jsx";
 import PopoverColorPicker from "./PopoverColorPicker.jsx";
-import { useGraph } from "../store/GraphContext.jsx";
+import { useGraph,ViewModes } from "../store/GraphContext.jsx";
 import PositionDetails from "./PositionDetails.jsx";
 
 function rgbaToHex(rgba) {
@@ -98,7 +99,7 @@ export default function AnalyticsPage() {
   const [isTagsChanged, setIsTagsChanged] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [isAncorsOpen, setIsAncorsOpen] = useState(false);
+  
   const {
     shapes,
     setShapes,
@@ -140,6 +141,9 @@ export default function AnalyticsPage() {
     setXAutorange,
     yAutorange,
     setYAutorange,
+    viewMode,
+    setViewMode,
+    
   } = useGraph();
 
   const [isHyperbolasFull, setIsHyperbolasFull] = useState(false);
@@ -290,7 +294,7 @@ export default function AnalyticsPage() {
           >
             Change campaign
           </button>
-          <button
+          {/* <button
             type="button"
             className="rounded-lg bg-secondary px-3 py-2 text-xs sm:text-sm font-semibold text-white shadow-[0px_1px_5px_0px_rgba(0,0,0,0.08)] shadow-gray-400 hover:bg-details-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-red"
             onClick={() => {
@@ -298,7 +302,7 @@ export default function AnalyticsPage() {
             }}
           >
             Tag details
-          </button>
+          </button> */}
 
           <Button
             onPress={onOpen}
@@ -676,6 +680,9 @@ export default function AnalyticsPage() {
                           : `flex flex-col items-center h-full w-full p-4`
                       }
                     >
+                      {
+                      viewMode == ViewModes.PLAYER && (<>
+                      
                       <Chart />
                       <div className="flex flex-col w-full h-30 px-3 mx-3 space-y-2 hide-scrollbar">
                         <ProgressBar
@@ -743,6 +750,23 @@ export default function AnalyticsPage() {
                           </div>
                         </div>
                       </div>
+                      </>)
+                      }
+                      {
+                        viewMode == ViewModes.HYPERBOLAS && (
+                        <>
+                          <HyperboalasChart></HyperboalasChart>
+                        </>
+                        )
+
+                      }
+                      {
+                         viewMode == ViewModes.LINK && (
+                          <>
+                            <LinkQualityChart></LinkQualityChart>
+                          </> )
+                      }
+
                     </div>
                   </>
                 )}
@@ -848,16 +872,32 @@ export default function AnalyticsPage() {
               </button>
             </div>
 
-            <div className="flex items-center justify-center">
-              <Button
-                onPress={() => setIsAncorsOpen(!isAncorsOpen)}
+            <div className="flex items-center justify-center space-x-3">
+              {viewMode !=ViewModes.LINK && <Button
+                className={`rounded-md bg-details-blue px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-details-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-blue ${
+                  ancorsFile ? "" : "hidden"
+                }`}
+                onPress={() =>setViewMode(ViewModes.LINK)}
+              
+              >
+                Link Quality View
+              </Button>}
+              {viewMode !=ViewModes.PLAYER && <Button
+                className={`rounded-md bg-details-blue px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-details-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-blue `}
+                onPress={() =>setViewMode(ViewModes.PLAYER)}
+              
+              >
+                Player view
+              </Button>}
+              {viewMode!=ViewModes.HYPERBOLAS && <Button
+                onPress={() => setViewMode(ViewModes.HYPERBOLAS)}
                 className={`rounded-md bg-details-blue px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-details-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-details-blue ${
                   ancorsFile ? "" : "hidden"
                 }`}
               >
-                Show Hyperbolas
-              </Button>
-              <Modal
+                Hyperbolas view
+              </Button>}
+              {/* <Modal
                 backdrop="blur"
                 classNames={{
                   backdrop: " bg-zinc-900/30 backdrop-blur-sm",
@@ -1096,10 +1136,10 @@ export default function AnalyticsPage() {
                     </>
                   )}
                 </ModalContent>
-              </Modal>
+              </Modal> */}
             </div>
 
-            <div className="flex-wrap flex-col h-full max-h-[80%] space-y-3 items-center justify-center my-3 mx-5  overflow-y-scroll hide-scrollbar">
+            <div className="flex-wrap flex-col  max-h-[80%] space-y-3 items-center justify-center my-3 mx-5  overflow-y-scroll hide-scrollbar">
               {isDetailsOn && positionDetails ? (
                 <PositionDetails></PositionDetails>
               ) : (

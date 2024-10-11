@@ -5,11 +5,30 @@ import { BaseURL } from '../costants.js';
 import {useMode} from '../store/ModeContext.jsx';
 
 
-export default function TreeCamapaignSelect({ handleTreeSelectChange, deep=false, type="csv"}) {
+export default function TreeCamapaignSelect({ handleTreeSelectChange, deep=false, type="csv",alreadySelected=null }) {
     const [data, setData] = useState([]);
     const {isOnline} = useMode();
     
     const [selectedNodeKey, setSelectedNodeKey] = useState(null);
+
+    const handleAlreadySelected = (file, data) => {
+        for (let item of data) {
+          if ( item.data === file) {
+            setSelectedNodeKey(item.key);
+            console.log("found",item.key);
+            return;
+          }
+          if (item.children) {
+            handleAlreadySelected(file, item.children);
+          }
+        }
+    };
+
+    useEffect(() => {
+        if(alreadySelected){
+            handleAlreadySelected(alreadySelected, data);
+        }
+    },[alreadySelected,data]);
 
     useEffect(() => {
         if(type==="csv" ){
@@ -23,6 +42,8 @@ export default function TreeCamapaignSelect({ handleTreeSelectChange, deep=false
             !isOnline && getFolderStructureAncors();
         }
     }, [isOnline]);
+
+    
 
     function getFolderStructureElement(){
         

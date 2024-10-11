@@ -39,6 +39,7 @@ out/
 dist/
 node_modules/
 jspm_packages/
+_pychache_/
 
 # TypeScript v1 declaration files
 typings/

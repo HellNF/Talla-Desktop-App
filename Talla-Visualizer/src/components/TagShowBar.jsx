@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useDashboard } from '../store/FileHandlerContext.jsx';
 import { useViewSettings } from '../store/viewSettingsContext.jsx';
-import { useGraph } from '../store/GraphContext.jsx';
+import { useGraph,ViewModes } from '../store/GraphContext.jsx';
 
 const TagShowBar = ({ tag }) => {
-  const { currentFrame, setCurrentFrame } = useGraph();
+  const { currentFrame, setCurrentFrame,setViewMode } = useGraph();
   const { index,fpsMode } = useDashboard();
   const { tagSetting } = useViewSettings();
   const totalDuration = index?.fileIndex[index?.fileIndex?.length - 1].end_frame;
@@ -51,7 +51,7 @@ const TagShowBar = ({ tag }) => {
               width: `${getTagPosition(file.end_frame) - getTagPosition(file.start_frame)}%`,
               backgroundColor: tagSetting[tag]?.color.main,
             }}
-            onClick={() => setCurrentFrame(file.start_frame)}
+            onClick={() => {setCurrentFrame(file.start_frame); setViewMode(ViewModes.PLAYER)}}
           />
         ) : null;
       })}

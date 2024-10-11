@@ -18,7 +18,7 @@ const Dashboard = () => {
     return (
         <>  
             <TallaNavbar></TallaNavbar>
-            <div className="flex  items-center justify-center h-screen w-full bg-dirty-white z-0">
+            <div className=" flex  items-center justify-center h-screen w-full bg-dirty-white z-0">
                 {!isSet ? <SelectCampaignForm></SelectCampaignForm> : 
                 index==null? <Spinner></Spinner> : 
                 currentTags.length ==0 ? <TagsForm></TagsForm>:  <AnalyticsPage></AnalyticsPage>}

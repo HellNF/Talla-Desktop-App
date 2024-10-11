@@ -38,26 +38,17 @@ const createWindow = () => {
   console.log(path.join(__dirname, 'preload.js'))
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   createContextMenu(mainWindow);
-  if (isDev) {
-    mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+  
+        mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
       callback({
         responseHeaders: {
           ...details.responseHeaders,
           'Content-Security-Policy': [
-            "default-src 'self' 'unsafe-inline' 'unsafe-eval' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;",
+            "default-src 'self' 'unsafe-inline' 'unsafe-eval' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; script-src 'self' 'unsafe-eval';",
           ],
         },
       });
-    });
-  }
-  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-    callback({
-      responseHeaders: {
-        ...details.responseHeaders,
-        "Content-Security-Policy": ["default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval';"]
-      }
-    });
-  });
+        });
   // mainWindow.webContents.openDevTools();
 };
 
@@ -120,6 +111,7 @@ ipcMain.handle('graph:hyperbolas', async (event, { filePath, tdoa_obj }) => {
 
   if (dirs.length !== 0) {
     let scriptPath;
+    //differrent path for packaged and unpackaged app
     if (app.isPackaged) {
       scriptPath = path.join(process.resourcesPath, 'scripts', 'handleHyperbolas.py');
     } else {
@@ -127,7 +119,9 @@ ipcMain.handle('graph:hyperbolas', async (event, { filePath, tdoa_obj }) => {
     }
 
     let command;
+    //transforming tdoa_obj to string in order to pass it as argument to python script
     const tdoa_str = JSON.stringify(tdoa_obj).replace(/"/g, '\\"');
+    //differrent command for windows and linux
     if (process.platform === 'win32') {
       command = `python "${scriptPath}" "${filePath}" "${outputPath}" "${tdoa_str}"`;
     } else {
@@ -153,12 +147,13 @@ ipcMain.handle('graph:hyperbolas', async (event, { filePath, tdoa_obj }) => {
 
     try {
       const stdout = await execPromise(command);
-      console.log(`stdout: ${stdout}`);
-
+      //console.log(`stdout: ${stdout}`);
+      //check if the output file was created
       const out = glob.sync(`${outputName}`, { cwd: dirPath, root: dirPath });
-      console.log(out);
+      
       if (out.length !== 0) {
         const data=fs.readFileSync(outputPath, 'utf8')
+        fs.unlink(outputPath);
         return JSON.parse(data.replace(/NaN/g, "null"));
         //return JSON.parse(fs.readFileSync(outputPath, 'utf8'));
       }
