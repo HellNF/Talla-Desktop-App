@@ -153,8 +153,14 @@ ipcMain.handle('graph:hyperbolas', async (event, { filePath, tdoa_obj }) => {
       
       if (out.length !== 0) {
         const data=fs.readFileSync(outputPath, 'utf8')
-        fs.unlink(outputPath);
-        return JSON.parse(data.replace(/NaN/g, "null"));
+        //fs.unlink(outputPath);
+        try {
+          return JSON.parse(data.replace(/NaN/g, "null"));
+        } catch (jsonError) {
+          console.error(`JSON parsing error: ${jsonError.message}`);
+          console.error(`Problematic JSON data: ${data}`);
+          throw jsonError;
+        }
         //return JSON.parse(fs.readFileSync(outputPath, 'utf8'));
       }
       return null;
