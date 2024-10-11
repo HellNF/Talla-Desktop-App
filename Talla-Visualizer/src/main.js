@@ -87,7 +87,7 @@ ipcMain.handle('tree:element:getFilesAndFolders', () => {
   return searchWorkspaceDirectory(workspaceDir, "**/elements/*.json");
 });
 ipcMain.handle('tree:ancors:getFilesAndFolders', () => {
-  return searchWorkspaceDirectory(workspaceDir, "**/ancors/*.json");
+  return searchWorkspaceDirectory(workspaceDir, "**/anchors/*.json");
 });
 ipcMain.handle('graph:getAncorsData', async (event, filePath) => {
   const dirPath = path.dirname(filePath);
