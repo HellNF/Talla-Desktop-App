@@ -866,7 +866,7 @@ export default function AnalyticsPage() {
               <button
                 type="button"
                 className="p-2  rounded-full"
-                onClick={() => setIsDetailsOn(false)}
+                onClick={() =>{setIsDetailsOn(false);setViewMode(ViewModes.PLAYER) }}
               >
                 <XMarkIcon className="h-6 w-6"></XMarkIcon>
               </button>
