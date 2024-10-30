@@ -62,7 +62,7 @@ export default function TreeCamapaignSelect({ handleTreeSelectChange, deep=false
     }
     function getFolderStructureAncors(){
         
-        window.electronAPI.invoke(  'tree:ancors:getFilesAndFolders').then((data) => {
+        window.electronAPI.invoke(  'tree:anchors:getFilesAndFolders').then((data) => {
             setData(dataFormatter(data));
         });
         

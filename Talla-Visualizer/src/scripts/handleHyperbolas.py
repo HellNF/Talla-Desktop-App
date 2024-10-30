@@ -117,9 +117,14 @@ def generate_hyperbolas(anchors, tdoa_data):
     ref_id = tdoa_data["ref_id"]
     recv_ids = tdoa_data["recv_ids"]
     tdoa_distances = tdoa_data["tdoa_dist"]
+    pos = tdoa_data["pos"]
+    # Controlla se i valori dell'array sono stringhe e se si convertile in numeri
+    pos = [float(p) if isinstance(p, str) else p for p in pos]
+    
     
     # Inizializza l'istanza di HyperPlotter con i dati degli anchor
-    plotter = HyperPlotter(anchors, frame=((-20, -20), (20, 20)))
+    frame = ((-pos[0]-10, -pos[1]-10), (pos[0]+10, pos[1]+10)) if pos[0] > 20 or pos[1] > 20 else ((-20, -20), (20, 20))
+    plotter = HyperPlotter(anchors, frame=frame)
     hyperbolas_data = {}
 
     # Per ogni coppia ref_id e recv_id, genera i punti delle iperboli

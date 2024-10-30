@@ -34,9 +34,10 @@ const createWindow = () => {
     },
     autoHideMenuBar: false,
   });
-  mainWindow.setTitle('Talla');
+  mainWindow.setTitle('Talla Visualizer');
   console.log(path.join(__dirname, 'preload.js'))
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  //create menu on right click
   createContextMenu(mainWindow);
   
         mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
@@ -66,13 +67,13 @@ app.whenReady().then(() => {
 
   createWindow();
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
+  
 });
-
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+});
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -86,10 +87,10 @@ ipcMain.handle('tree:CSV:getFilesAndFolders', () => {
 ipcMain.handle('tree:element:getFilesAndFolders', () => {
   return searchWorkspaceDirectory(workspaceDir, "**/elements/*.json");
 });
-ipcMain.handle('tree:ancors:getFilesAndFolders', () => {
+ipcMain.handle('tree:anchors:getFilesAndFolders', () => {
   return searchWorkspaceDirectory(workspaceDir, "**/anchors/*.json");
 });
-ipcMain.handle('graph:getAncorsData', async (event, filePath) => {
+ipcMain.handle('graph:getAnchorsData', async (event, filePath) => {
   const dirPath = path.dirname(filePath);
   const filename= path.basename(filePath);
   const dirs = glob.sync(`${filename}`, { cwd: dirPath, root: dirPath });

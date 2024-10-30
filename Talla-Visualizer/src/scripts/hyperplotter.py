@@ -23,7 +23,7 @@ class HyperPlotter:
 
     def hyperbola_from_dist_diff(self, anchor1, anchor2, dist_diff,
                                  frame=((-10,-10),(10,10)),
-                                 asymptote_closeness=2,
+                                 asymptote_closeness=10,
                                  density=100,
                                  single_branch=True):
 

@@ -160,7 +160,7 @@ export default function AnalyticsPage() {
   useEffect(() => {
     if (ancorsFile !== null) {
       window.electronAPI
-        .invoke("graph:getAncorsData", ancorsFile)
+        .invoke("graph:getAnchorsData", ancorsFile)
         .then((data) => {
           setAncorFileData(data);
         });

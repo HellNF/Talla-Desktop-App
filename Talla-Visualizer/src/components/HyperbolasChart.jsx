@@ -55,6 +55,7 @@ export default function HyperbolasChart() {
         ref_id: JSON.parse(positionDetails.anchor_ref),
         recv_ids: JSON.parse(positionDetails.anchor_rec),
         tdoa_dist: JSON.parse(positionDetails.tdoa_dist),
+        pos: [positionDetails.x_kf, positionDetails.y_kf],
       };
       console.log(ancorsFile);
       window.electronAPI
