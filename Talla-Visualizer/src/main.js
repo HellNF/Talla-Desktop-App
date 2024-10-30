@@ -34,7 +34,7 @@ const createWindow = () => {
     },
     autoHideMenuBar: false,
   });
-  mainWindow.setTitle('Talla Visualizer');
+  mainWindow.setTitle('Talla');
   console.log(path.join(__dirname, 'preload.js'))
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   //create menu on right click
@@ -52,6 +52,16 @@ const createWindow = () => {
         });
   // mainWindow.webContents.openDevTools();
 };
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+});
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
 
 app.whenReady().then(() => {
   installExtension(REACT_DEVELOPER_TOOLS)
@@ -69,16 +79,7 @@ app.whenReady().then(() => {
 
   
 });
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
-});
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
+
 
 ipcMain.handle('tree:CSV:getFilesAndFolders', () => {
   return searchWorkspaceDirectory(workspaceDir, "**/traces.csv");
